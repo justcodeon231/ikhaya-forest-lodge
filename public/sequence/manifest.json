@@ -1,0 +1,45 @@
+{
+  "enabled": true,
+  "count": 302,
+  "fps": 12,
+  "desktop": "/sequence/desktop/frame-{frame}.webp",
+  "mobile": "/sequence/mobile/frame-{frame}.webp",
+  "stops": [
+    {
+      "scroll": 0,
+      "frame": 0
+    },
+    {
+      "scroll": 0.06,
+      "frame": 0
+    },
+    {
+      "scroll": 0.28,
+      "frame": 120
+    },
+    {
+      "scroll": 0.36,
+      "frame": 168
+    },
+    {
+      "scroll": 0.45,
+      "frame": 168
+    },
+    {
+      "scroll": 0.61,
+      "frame": 263
+    },
+    {
+      "scroll": 0.74,
+      "frame": 263
+    },
+    {
+      "scroll": 0.92,
+      "frame": 301
+    },
+    {
+      "scroll": 1,
+      "frame": 301
+    }
+  ]
+}
