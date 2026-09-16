@@ -2,64 +2,715 @@
 import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import { ScrollFilm } from '@/components/scroll-film';
-import { ArrowDown, ArrowUpRight, Compass, MessageCircle, Trees } from 'lucide-react';
+import { BeveledCard } from '@/components/beveled-card';
+import { EmberParticles } from '@/components/ember-particles';
+import { ArrowDown, ArrowUpRight, Compass, MessageCircle, Phone, Sparkles } from 'lucide-react';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 
-const clamp=(v:number)=>Math.max(0,Math.min(1,v));
-const range=(p:number,a:number,b:number)=>clamp((p-a)/(b-a));
-const ease=(v:number)=>v*v*(3-2*v);
-const fade=(p:number,a:number,b:number,c:number,d:number)=>ease(range(p,a,b))*(1-ease(range(p,c,d)));
-const chapters=['The Wild Coast','Five Biomes','Meet the Wild','Stay Under Stars','Experiences','Begin Journey'];
-const chapterStops=[0, 0.19, 0.38, 0.57, 0.76, 0.95];
-export default function Home(){
- const journey=useRef<HTMLDivElement>(null);const [active,setActive]=useState(0);const [booking,setBooking]=useState(false);const [suite,setSuite]=useState('Valley Tented Suite');const [sent,setSent]=useState(false);const [arrival,setArrival]=useState('');
- useEffect(()=>{const root=journey.current!;const reduced=matchMedia('(prefers-reduced-motion: reduce)');let frame=0;let previous=-1;let current=-1;let lastTime=0;const els=Object.fromEntries(Array.from(root.querySelectorAll<HTMLElement>('[data-layer]')).map(el=>[el.dataset.layer!,el]));
- const paint=(now=performance.now())=>{frame=0;const target=clamp(-root.getBoundingClientRect().top/Math.max(1,root.offsetHeight-innerHeight));const dt=Math.min(64,now-lastTime||16);lastTime=now;if(current<0||reduced.matches)current=target;else current+=(target-current)*(1-Math.exp(-dt/90));if(Math.abs(target-current)<.0001)current=target;const p=current;const scene=p<.16?0:p<.33?1:p<.50?2:p<.67?3:p<.84?4:5;if(scene!==previous){previous=scene;setActive(scene)}root.style.setProperty('--progress',String(p));window.dispatchEvent(new CustomEvent('ikhaya-progress',{detail:p}));if(reduced.matches){Object.values(els).forEach(el=>{el.style.cssText='';el.removeAttribute('aria-hidden');el.inert=false});return}
- const apply=(name:string,styles:Record<string,string|number>)=>{const el=els[name];if(el)Object.assign(el.style,styles)};
- const content=(name:string,opacity:number,transform:string)=>{if(!els[name])return;apply(name,{opacity,transform});els[name].inert=opacity<.35;els[name].setAttribute('aria-hidden',String(opacity<.35))};
- const enter=ease(range(p,.28,.48)),leave=ease(range(p,.60,.74)),pool=ease(range(p,.62,.76)),end=ease(range(p,.83,.93));
- const approach=ease(range(p,.05,.28));
- apply('forest',{transform:`scale(${1+approach*.65}) translate3d(${-approach*5}%,${approach*2}%,0)`});
- apply('canopy',{opacity:(1-ease(range(p,.15,.28)))*.95,transform:`scale(${1+approach*1.25}) translate3d(${-approach*4}%,${-approach*8}%,0)`});
- apply('suite-image',{opacity:ease(range(p,.44,.52))*(1-ease(range(p,.70,.78))),clipPath:`inset(${(1-enter)*24}% ${(1-enter)*32}% ${(1-enter)*16}% ${(1-enter)*5}% round(${(1-enter)*3}px)`,transform:`translate3d(${(1-enter)*24-leave*70}%,${(1-enter)*12-leave*12}%,0) rotate(${(1-enter)*4-leave*10}deg) scale(${.88+enter*.12})`});
- apply('pool-image',{opacity:pool,clipPath:`circle(${pool*145}% at 78% 65%)`,transform:`scale(${1.25-pool*.25+end*.16})`});
- apply('return-image',{opacity:end,transform:`scale(${1.5-end*.5})`,clipPath:`inset(0 ${100-end*100}% 0 0)`});
- apply('shade',{background:`linear-gradient(90deg,rgba(4,20,16,${.48+end*.12}),rgba(4,20,16,.08)),linear-gradient(0deg,rgba(4,20,16,.65),transparent 45%)`});
- content('arrival',1-ease(range(p,.06,.15)),`translate3d(${-range(p,0,.18)*12}%,${-range(p,0,.18)*22}%,0) scale(${1+range(p,0,.18)*.2})`);
- content('biomes-copy',fade(p,.15,.20,.30,.35),`translate3d(0,${(1-ease(range(p,.12,.21)))*50-range(p,.29,.37)*55}px,0)`);
- content('wildlife-copy',fade(p,.33,.38,.48,.53),`translate3d(${(1-ease(range(p,.31,.39)))*45-range(p,.47,.55)*120}px,0,0)`);
- content('suite-copy',fade(p,.51,.56,.66,.71),`translate3d(0,${(1-ease(range(p,.49,.57)))*50-range(p,.65,.73)*60}px,0)`);
- content('experiences-copy',fade(p,.69,.74,.84,.89),`translate3d(0,${(1-ease(range(p,.67,.75)))*50-range(p,.83,.90)*60}px,0)`);
- content('last-copy',ease(range(p,.86,.93)),`translate3d(0,${(1-end)*70}px,0) scale(${.92+end*.08})`);
- apply('word',{opacity:fade(p,.12,.21,.40,.50)*.26,transform:`translate3d(${45-p*190}%,0,0)`});
- apply('postcard',{opacity:fade(p,.44,.51,.64,.72),transform:`translate3d(${(1-ease(range(p,.44,.54)))*130-range(p,.64,.74)*170}%,${(1-ease(range(p,.44,.54)))*70-range(p,.64,.74)*120}%,0) rotate(${-9+pool*13-range(p,.64,.74)*35}deg)`});
- if(Math.abs(target-current)>.0001)frame=requestAnimationFrame(paint);
- };const schedule=()=>{if(!frame)frame=requestAnimationFrame(paint)};window.addEventListener('scroll',schedule,{passive:true});window.addEventListener('resize',schedule);reduced.addEventListener('change',schedule);paint();return()=>{cancelAnimationFrame(frame);window.removeEventListener('scroll',schedule);window.removeEventListener('resize',schedule);reduced.removeEventListener('change',schedule)}},[]);
- function go(index:number){const root=journey.current!;const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;if(reduced){root.querySelectorAll<HTMLElement>('.chapter')[index]?.scrollIntoView({behavior:'instant'});return}window.scrollTo({top:root.offsetTop+chapterStops[index]*(root.offsetHeight-innerHeight),behavior:'smooth'})}
- function reserve(name='Valley Tented Suite'){setSuite(name);setSent(false);setBooking(true)}
- return <main>
- <div className="speculative-banner">
-   <span>Independent speculative concept by <strong>LocalAI Systems</strong> · Not commissioned by or affiliated with <strong>Inkwenkwezi Private Game Reserve</strong></span>
- </div>
- <header className="nav"><button className="brand" onClick={()=>go(0)} aria-label="Inkwenkwezi Private Game Reserve, return to arrival"><Compass size={26} color="#c89d5c"/><span>INKWENKWEZI<small>PRIVATE GAME RESERVE</small></span></button><span className="nav-location">CHINTSA, WILD COAST · EAST LONDON</span><button className="nav-book" onClick={()=>reserve()}>Plan your escape <ArrowUpRight size={17}/></button></header>
- <div className="journey" ref={journey}><div className="stage">
- <div className="scene-image forest" data-layer="forest"><Image src="/images/forest-lodge.webp" alt="Inkwenkwezi Private Game Reserve along the Wild Coast" fill priority unoptimized sizes="100vw"/></div>
- <div className="scene-image suite-image" data-layer="suite-image"><Image src="/images/film-suite.webp" alt="A secluded luxury tented safari suite with warm timber and panoramic bush canopy views" fill unoptimized sizes="100vw"/></div>
- <div className="scene-image pool-image" data-layer="pool-image"><Image src="/images/film-pool.webp" alt="A secluded pool overlooking coastal forest and valley bushveld" fill unoptimized sizes="100vw"/></div>
- <div className="scene-image return-image" data-layer="return-image"><Image src="/images/film-end.webp" alt="" fill unoptimized sizes="100vw"/></div>
- <ScrollFilm/>
- <div className="canopy-layer" data-layer="canopy" aria-hidden="true"><Image src="/images/canopy-overlay.webp" alt="" fill unoptimized sizes="100vw"/></div>
- <div className="shade" data-layer="shade"/>
- <div className="passing-word" data-layer="word" aria-hidden="true">untamed.</div>
- <div className="postcard" data-layer="postcard" aria-hidden="true"><Image src="/images/forest-lodge.webp" alt="" fill unoptimized sizes="30vw"/><span>WILD COAST · FIVE BIOMES.</span></div>
- <section className="chapter arrival" data-layer="arrival"><p className="eyebrow">01 / THE WILD COAST · CHINTSA</p><h1>Five worlds.<br/>One <em>wild escape.</em></h1><p className="body-copy">Where rugged coastal ocean meets untamed Eastern Cape bushveld.<br/>A protected wilderness sanctuary where time slows down.</p><button className="enter-link" onClick={()=>go(1)}>Explore the biomes <span><ArrowDown size={18}/></span></button></section>
- <section className="chapter biomes-copy" data-layer="biomes-copy"><p className="eyebrow">02 / FIVE DISTINCT BIOMES</p><h2>Five worlds.<br/><em>One reserve.</em></h2><p className="body-copy">Inkwenkwezi is home to one of Africa’s rarest ecological crossroads — five distinct biomes thriving within a single protected landscape.</p><div className="biomes-pills"><span>Tidal Estuary</span><span>Coastal Forest</span><span>Valley Bushveld</span><span>Rolling Grassland</span><span>Riverine Thicket</span></div></section>
- <section className="chapter wildlife-copy" data-layer="wildlife-copy"><p className="eyebrow">03 / WILDLIFE ENCOUNTERS</p><h2>Walk alongside<br/><em>the legends.</em></h2><p className="body-copy">From open-vehicle Big Five game drives to rare close-quarter cheetah educational experiences and 280+ indigenous bird species.</p><div className="moments"><span>Open 4×4 Game Drives</span><span>Cheetah Experience</span><span>Guided Bush Walks</span><span>Birding Safaris</span></div></section>
- <section className="chapter suite-copy" data-layer="suite-copy"><p className="eyebrow">04 / YOUR TENTED SANCTUARY</p><h2>Rest where the<br/><em>wild breathes.</em></h2><p className="body-copy">Soft linen. Elevated timber decks. An ancient indigenous canopy on the other side of the glass.</p><div className="suite-options"><button onClick={()=>reserve('Valley Tented Suite')}>Valley Tented Suite <small>2 guests · Private canopy deck</small><ArrowUpRight size={18}/></button><button onClick={()=>reserve('Bush Tented Suite')}>Bush Tented Suite <small>Family retreat · Valley bushveld</small><ArrowUpRight size={18}/></button></div></section>
- <section className="chapter experiences-copy" data-layer="experiences-copy"><p className="eyebrow">05 / CHOOSE YOUR ESCAPE</p><h2>Tailored for<br/><em>every journey.</em></h2><p className="body-copy">Whether arriving for a luxury weekend, a day game drive, or an unforgettable celebration.</p><div className="experience-cards"><div className="experience-card" onClick={()=>reserve('Luxury Safari Stay')}><span className="card-badge">Accommodation</span><h3>Luxury Safari Stays</h3><p>Elevated valley tented suites with private decks and boma dinners under the stars.</p><span className="card-link">Explore suites <ArrowUpRight size={14}/></span></div><div className="experience-card" onClick={()=>reserve('Day Safari & Game Drive')}><span className="card-badge">Day Visitors</span><h3>Game Drives & Safaris</h3><p>3-hour guided 4×4 game drives, cheetah educational encounters & sunset tours.</p><span className="card-link">Book safari <ArrowUpRight size={14}/></span></div><div className="experience-card" onClick={()=>reserve('Weddings & Events')}><span className="card-badge">Celebrations</span><h3>Weddings & Events</h3><p>Open-air forest chapel, panoramic reception hall, and conferences for up to 180 guests.</p><span className="card-link">Plan event <ArrowUpRight size={14}/></span></div></div></section>
- <section className="chapter last-copy" data-layer="last-copy"><p className="eyebrow">06 / YOUR WILD COAST JOURNEY</p><h2>Your wild escape<br/><em>awaits.</em></h2><div className="cta-actions"><button className="pill light" onClick={()=>reserve()}>Preview reservation <ArrowUpRight size={18}/></button><a href="https://wa.me/27437343234?text=Hi%20Inkwenkwezi,%20I'm%20enquiring%20about%20a%20stay%20and%20safari%20experience" target="_blank" rel="noopener noreferrer" className="pill whatsapp"><MessageCircle size={18}/> Chat on WhatsApp</a></div><p className="concept">Independent speculative concept by LocalAI Systems · Not commissioned by or affiliated with Inkwenkwezi Private Game Reserve</p><button className="again" onClick={()=>go(0)}>Wander back to the beginning</button></section>
- <div className="scene-footer"><span className="place-note">FIVE WORLDS. ONE WILD ESCAPE.</span><nav className="chapters" aria-label="Journey chapters">{chapters.map((name,i)=><button key={name} aria-current={active===i?'step':undefined} onClick={()=>go(i)}><span className="chapter-number">0{i+1}</span><span className="chapter-name">{name}</span></button>)}</nav><span className="scroll-cue">SCROLL TO WANDER <ArrowDown size={14}/></span></div>
- <div className="progress-track"><div className="progress-fill"/></div>
- </div></div>
- <Dialog open={booking} onOpenChange={setBooking}><DialogContent className="booking"><DialogTitle className="booking-title">Reserve your escape.</DialogTitle><DialogDescription>Independent speculative concept by LocalAI Systems. Explore Inkwenkwezi safari and accommodation below; no booking or enquiry will be sent.</DialogDescription>{sent?<div className="confirmation" role="status"><Compass size={40} color="#c89d5c"/><h3>Your escape, imagined.</h3><p>{suite}, arriving {arrival}. A real reservation or direct WhatsApp channel can be connected here.</p><button className="pill" onClick={()=>setBooking(false)}>Back to the reserve</button></div>:<form onSubmit={e=>{e.preventDefault();setSent(true)}}><label>Your hideaway<select value={suite} onChange={e=>setSuite(e.target.value)}><option>Valley Tented Suite</option><option>Bush Tented Suite</option></select></label><div className="date-grid"><label>Arrival<input type="date" required min={new Date().toLocaleDateString('en-CA')} value={arrival} onChange={e=>setArrival(e.target.value)}/></label><label>Guests<select><option>2 guests</option><option>1 guest</option>{suite==='Bush Tented Suite'&&<><option>3 guests</option><option>4 guests</option></>}</select></label></div><button className="pill" type="submit">Preview my safari stay <ArrowUpRight size={17}/></button></form>}</DialogContent></Dialog> </main>
+const clamp = (v: number) => Math.max(0, Math.min(1, v));
+const range = (p: number, a: number, b: number) => clamp((p - a) / (b - a));
+const ease = (v: number) => v * v * (3 - 2 * v);
+const fade = (p: number, a: number, b: number, c: number, d: number) =>
+  ease(range(p, a, b)) * (1 - ease(range(p, c, d)));
+
+export const chapters = [
+  'Wild Coast Arrival',
+  'Five Biomes',
+  '4×4 Safari & Lions',
+  'Tented Sanctuaries',
+  'Sunset Lapa & Boma',
+  'Emthombeni & Chapel',
+  'Wild Adventures',
+  'Plan Your Escape'
+];
+
+export const chapterStops = [0.00, 0.14, 0.28, 0.42, 0.56, 0.70, 0.84, 0.96];
+
+export default function Home() {
+  const journey = useRef<HTMLDivElement>(null);
+  const [active, setActive] = useState(0);
+  const [camp, setCamp] = useState<'valley' | 'bush'>('valley');
+  const [booking, setBooking] = useState(false);
+  const [suite, setSuite] = useState('Valley Tented Suite');
+  const [sent, setSent] = useState(false);
+  const [arrival, setArrival] = useState('');
+
+  useEffect(() => {
+    const root = journey.current!;
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+    let frame = 0;
+    let previous = -1;
+    let current = -1;
+    let lastTime = 0;
+    const els = Object.fromEntries(
+      Array.from(root.querySelectorAll<HTMLElement>('[data-layer]')).map(el => [el.dataset.layer!, el])
+    );
+
+    const paint = (now = performance.now()) => {
+      frame = 0;
+      const target = clamp(-root.getBoundingClientRect().top / Math.max(1, root.offsetHeight - innerHeight));
+      const dt = Math.min(64, now - lastTime || 16);
+      lastTime = now;
+      if (current < 0 || reduced.matches) current = target;
+      else current += (target - current) * (1 - Math.exp(-dt / 90));
+      if (Math.abs(target - current) < 0.0001) current = target;
+      const p = current;
+
+      // 8 distinct scene trigger zones
+      const scene =
+        p < 0.08 ? 0 :
+        p < 0.21 ? 1 :
+        p < 0.35 ? 2 :
+        p < 0.49 ? 3 :
+        p < 0.63 ? 4 :
+        p < 0.77 ? 5 :
+        p < 0.90 ? 6 : 7;
+
+      if (scene !== previous) {
+        previous = scene;
+        setActive(scene);
+      }
+
+      root.style.setProperty('--progress', String(p));
+      window.dispatchEvent(new CustomEvent('ikhaya-progress', { detail: p }));
+
+      if (reduced.matches) {
+        Object.values(els).forEach(el => {
+          el.style.cssText = '';
+          el.removeAttribute('aria-hidden');
+          el.inert = false;
+        });
+        return;
+      }
+
+      const apply = (name: string, styles: Record<string, string | number>) => {
+        const el = els[name];
+        if (el) Object.assign(el.style, styles);
+      };
+
+      const content = (name: string, opacity: number, transform: string) => {
+        if (!els[name]) return;
+        apply(name, { opacity, transform });
+        els[name].inert = opacity < 0.35;
+        els[name].setAttribute('aria-hidden', String(opacity < 0.35));
+      };
+
+      const approach = ease(range(p, 0.03, 0.20));
+      const enter = ease(range(p, 0.22, 0.38));
+      const leave = ease(range(p, 0.46, 0.58));
+      const lapaPhase = ease(range(p, 0.52, 0.64));
+      const weddingPhase = ease(range(p, 0.66, 0.78));
+      const adventurePhase = ease(range(p, 0.80, 0.90));
+      const end = ease(range(p, 0.91, 0.98));
+
+      // Dynamic parallax background planes
+      apply('forest', {
+        transform: `scale(${1 + approach * 0.55}) translate3d(${-approach * 4}%,${approach * 2}%,0)`
+      });
+
+      apply('canopy', {
+        opacity: (1 - ease(range(p, 0.10, 0.22))) * 0.95,
+        transform: `scale(${1 + approach * 1.2}) translate3d(${-approach * 3}%,${-approach * 6}%,0)`
+      });
+
+      // Midground accommodation preview
+      apply('suite-image', {
+        opacity: ease(range(p, 0.36, 0.44)) * (1 - ease(range(p, 0.54, 0.60))),
+        clipPath: `inset(${(1 - enter) * 20}% ${(1 - enter) * 28}% ${(1 - enter) * 14}% ${(1 - enter) * 4}% round(10px))`,
+        transform: `translate3d(${(1 - enter) * 20 - leave * 55}%,${(1 - enter) * 10 - leave * 10}%,0) scale(${0.92 + enter * 0.08})`
+      });
+
+      // Sunset lapa twilight ambient background
+      apply('lapa-bg', {
+        opacity: ease(range(p, 0.50, 0.56)) * (1 - ease(range(p, 0.64, 0.68))),
+        transform: `scale(${1.08 - lapaPhase * 0.08})`
+      });
+
+      // Emthombeni grand venue backdrop
+      apply('wedding-bg', {
+        opacity: ease(range(p, 0.64, 0.70)) * (1 - ease(range(p, 0.78, 0.83))),
+        transform: `scale(${1.06 - weddingPhase * 0.06})`
+      });
+
+      apply('shade', {
+        background: `linear-gradient(90deg, rgba(4,20,16,${0.55 + lapaPhase * 0.15 + end * 0.1}), rgba(4,20,16,0.18)), linear-gradient(0deg, rgba(4,20,16,0.72), transparent 45%)`
+      });
+
+      // Chapter text layers
+      content(
+        'arrival',
+        1 - ease(range(p, 0.05, 0.13)),
+        `translate3d(${-range(p, 0, 0.15) * 10}%,${-range(p, 0, 0.15) * 18}%,0) scale(${1 + range(p, 0, 0.15) * 0.15})`
+      );
+
+      content(
+        'biomes-copy',
+        fade(p, 0.11, 0.15, 0.24, 0.28),
+        `translate3d(0,${(1 - ease(range(p, 0.09, 0.16))) * 45 - range(p, 0.23, 0.29) * 50}px,0)`
+      );
+
+      content(
+        'wildlife-copy',
+        fade(p, 0.25, 0.29, 0.38, 0.42),
+        `translate3d(${(1 - ease(range(p, 0.23, 0.30))) * 40 - range(p, 0.37, 0.43) * 60}px,0,0)`
+      );
+
+      content(
+        'suite-copy',
+        fade(p, 0.39, 0.43, 0.52, 0.56),
+        `translate3d(0,${(1 - ease(range(p, 0.37, 0.44))) * 45 - range(p, 0.51, 0.57) * 50}px,0)`
+      );
+
+      content(
+        'lapa-copy',
+        fade(p, 0.53, 0.57, 0.66, 0.70),
+        `translate3d(0,${(1 - ease(range(p, 0.51, 0.58))) * 45 - range(p, 0.65, 0.71) * 50}px,0)`
+      );
+
+      content(
+        'wedding-copy',
+        fade(p, 0.67, 0.71, 0.80, 0.84),
+        `translate3d(0,${(1 - ease(range(p, 0.65, 0.72))) * 45 - range(p, 0.79, 0.85) * 50}px,0)`
+      );
+
+      content(
+        'experiences-copy',
+        fade(p, 0.81, 0.85, 0.91, 0.94),
+        `translate3d(0,${(1 - ease(range(p, 0.79, 0.86))) * 45 - range(p, 0.90, 0.95) * 50}px,0)`
+      );
+
+      content(
+        'last-copy',
+        ease(range(p, 0.92, 0.97)),
+        `translate3d(0,${(1 - end) * 60}px,0) scale(${0.94 + end * 0.06})`
+      );
+
+      if (Math.abs(target - current) > 0.0001) frame = requestAnimationFrame(paint);
+    };
+
+    const schedule = () => {
+      if (!frame) frame = requestAnimationFrame(paint);
+    };
+
+    window.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('resize', schedule);
+    reduced.addEventListener('change', schedule);
+    paint();
+
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener('scroll', schedule);
+      window.removeEventListener('resize', schedule);
+      reduced.removeEventListener('change', schedule);
+    };
+  }, []);
+
+  function go(index: number) {
+    const root = journey.current!;
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduced) {
+      root.querySelectorAll<HTMLElement>('.chapter')[index]?.scrollIntoView({ behavior: 'instant' });
+      return;
+    }
+    window.scrollTo({
+      top: root.offsetTop + chapterStops[index] * (root.offsetHeight - innerHeight),
+      behavior: 'smooth'
+    });
+  }
+
+  function reserve(name = 'Valley Tented Suite') {
+    setSuite(name);
+    setSent(false);
+    setBooking(true);
+  }
+
+  return (
+    <main>
+      <div className="speculative-banner">
+        <span>
+          Independent speculative concept by <strong>LocalAI Systems</strong> · Not commissioned by or affiliated with{' '}
+          <strong>Inkwenkwezi Private Game Reserve</strong>
+        </span>
+      </div>
+
+      <header className="nav">
+        <button className="brand" onClick={() => go(0)} aria-label="Inkwenkwezi Private Game Reserve, return to arrival">
+          <Compass size={26} color="#c89d5c" />
+          <span>
+            INKWENKWEZI<small>PRIVATE GAME RESERVE</small>
+          </span>
+        </button>
+        <span className="nav-location">CHINTSA, WILD COAST · EAST LONDON · MALARIA-FREE</span>
+        <button className="nav-book" onClick={() => reserve()}>
+          Plan your escape <ArrowUpRight size={17} />
+        </button>
+      </header>
+
+      <div className="journey" ref={journey}>
+        <div className="stage">
+          {/* Background & Scrollytelling Film Planes */}
+          <div className="scene-image forest" data-layer="forest">
+            <Image
+              src="/images/facilities/sunset-lapa-aerial.jpg"
+              alt="Inkwenkwezi Private Game Reserve along the Wild Coast"
+              fill
+              priority
+              unoptimized
+              sizes="100vw"
+            />
+          </div>
+
+          <div className="scene-image suite-image" data-layer="suite-image">
+            <Image
+              src={camp === 'valley' ? '/images/facilities/valley-camp-deck.jpg' : '/images/facilities/bush-camp-exterior.jpg'}
+              alt="Tented luxury safari suite overlooking indigenous bush canopy"
+              fill
+              unoptimized
+              sizes="100vw"
+            />
+          </div>
+
+          <div className="scene-image lapa-bg" data-layer="lapa-bg" style={{ zIndex: 2, opacity: 0, pointerEvents: 'none' }}>
+            <Image
+              src="/images/facilities/sunset-lapa-restaurant.jpg"
+              alt="The Sunset Restaurant and stone boma fire pit at dusk"
+              fill
+              unoptimized
+              sizes="100vw"
+            />
+          </div>
+
+          <div className="scene-image wedding-bg" data-layer="wedding-bg" style={{ zIndex: 2, opacity: 0, pointerEvents: 'none' }}>
+            <Image
+              src="/images/facilities/emthombeni-restaurant.jpg"
+              alt="Emthombeni banquet hall with floor-to-ceiling glass folding doors"
+              fill
+              unoptimized
+              sizes="100vw"
+            />
+          </div>
+
+          <ScrollFilm />
+
+          <div className="canopy-layer" data-layer="canopy" aria-hidden="true">
+            <Image src="/images/canopy-overlay.webp" alt="" fill unoptimized sizes="100vw" />
+          </div>
+
+          {/* Ember particles active on Sunset Lapa & Boma */}
+          <EmberParticles active={active === 4} />
+
+          <div className="shade" data-layer="shade" />
+
+          {/* SCENE 01: ARRIVAL */}
+          <section className="chapter arrival" data-layer="arrival">
+            <p className="eyebrow">01 / THE WILD COAST · CHINTSA</p>
+            <h1>
+              Five worlds.<br />
+              One <em>wild escape.</em>
+            </h1>
+            <p className="body-copy">
+              Where rugged Indian Ocean shores meet untamed Eastern Cape bushveld.<br />
+              A malaria-free private wilderness sanctuary where time slows down.
+            </p>
+            <button className="enter-link" onClick={() => go(1)}>
+              Explore the biomes{' '}
+              <span>
+                <ArrowDown size={18} />
+              </span>
+            </button>
+          </section>
+
+          {/* SCENE 02: THE FIVE BIOMES */}
+          <section className="chapter biomes-copy" data-layer="biomes-copy">
+            <div className="chapter-split">
+              <div>
+                <p className="eyebrow">02 / FIVE DISTINCT BIOMES & TIDAL ESTUARY</p>
+                <h2>
+                  Five worlds.<br />
+                  <em>One reserve.</em>
+                </h2>
+                <p className="body-copy">
+                  Inkwenkwezi encompasses one of South Africa’s rarest ecological crossroads — five regional biomes
+                  and a living tidal saltwater estuary flourishing inside a single protected valley.
+                </p>
+                <div className="biomes-pills">
+                  <span>Tidal Saltwater Estuary</span>
+                  <span>Ancient Umtiza Forest</span>
+                  <span>Valley Bushveld</span>
+                  <span>Rolling Coastal Grassland</span>
+                  <span>Riverine Thicket</span>
+                </div>
+              </div>
+              <div className="chapter-media-pop">
+                <BeveledCard
+                  src="/images/facilities/umtiza-tree.jpg"
+                  alt="Ancient Umtiza Listeriana Tree Forest"
+                  tag="Botanical Sanctuary"
+                  title="Rare Umtiza Forest"
+                  subtitle="Over 300 specimens of the rare Umtiza listeriana tree, protected in a 1-hectare sanctuary."
+                  onClick={() => reserve('Umtiza Guided Walk')}
+                />
+              </div>
+            </div>
+          </section>
+
+          {/* SCENE 03: 4X4 SAFARI & WHITE LIONS */}
+          <section className="chapter wildlife-copy" data-layer="wildlife-copy">
+            <div className="chapter-split">
+              <div>
+                <p className="eyebrow">03 / GUIDED 4×4 SAFARIS & WHITE LIONS</p>
+                <h2>
+                  Walk alongside<br />
+                  <em>the legends.</em>
+                </h2>
+                <p className="body-copy">
+                  Traverse 5 biomes from our fleet of 11+ open 4×4 game vehicles. Encounter 4 of the Big 5 (lions,
+                  leopards, white rhinos, Cape buffalo) and rare, genuine non-albino White Lions in their natural habitat.
+                </p>
+                <div className="moments">
+                  <span>Open 4×4 Guided Game Drives</span>
+                  <span>Rare Genuine White Lions</span>
+                  <span>Cheetah Educational Area</span>
+                  <span>286+ Identified Bird Species</span>
+                </div>
+              </div>
+              <div className="chapter-media-pop">
+                <BeveledCard
+                  src="/images/facilities/white-lions.jpg"
+                  alt="The rare genuine White Lions of Inkwenkwezi"
+                  tag="African Legend"
+                  title="The Rare White Lions"
+                  subtitle="Non-albino recessive gene lions with dark pigmentation pads, thriving in the coastal bushveld."
+                  onClick={() => reserve('Day Safari & Game Drive')}
+                />
+              </div>
+            </div>
+          </section>
+
+          {/* SCENE 04: TENTED SANCTUARIES WITH INTERACTIVE DECK TOGGLE */}
+          <section className="chapter suite-copy" data-layer="suite-copy">
+            <div className="chapter-split">
+              <div>
+                <p className="eyebrow">04 / YOUR TENTED SANCTUARY</p>
+                <h2>
+                  Rest where the<br />
+                  <em>wild breathes.</em>
+                </h2>
+                <p className="body-copy">
+                  Elevated timber decks. Soft linen. An ancient indigenous canopy right outside your glass and canvas retreat.
+                </p>
+
+                {/* Interactive Accommodation Deck Toggle */}
+                <div className="deck-toggle-wrapper" role="tablist" aria-label="Lodge accommodation selection">
+                  <button
+                    className={`deck-toggle-btn ${camp === 'valley' ? 'is-active' : ''}`}
+                    onClick={() => setCamp('valley')}
+                    role="tab"
+                    aria-selected={camp === 'valley'}
+                  >
+                    Valley Camp 4★ (Canopy Decks)
+                  </button>
+                  <button
+                    className={`deck-toggle-btn ${camp === 'bush' ? 'is-active' : ''}`}
+                    onClick={() => setCamp('bush')}
+                    role="tab"
+                    aria-selected={camp === 'bush'}
+                  >
+                    Bush Camp 3★ (Hilltop & Cave Ensuite)
+                  </button>
+                </div>
+
+                {camp === 'valley' ? (
+                  <div>
+                    <p className="body-copy" style={{ marginTop: '0', fontSize: '15px' }}>
+                      6 custom-designed luxury safari tents spaced <strong>50 meters apart</strong> for absolute privacy. Nestled inside
+                      the indigenous tree canopy with private covered viewing decks and a freestanding slipper bath tub.
+                    </p>
+                    <div className="deck-specs-list">
+                      <span>4-Star Graded</span>
+                      <span>50m Deck Seclusion</span>
+                      <span>Freestanding Slipper Tub</span>
+                      <span>Family Suite Attached</span>
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <p className="body-copy" style={{ marginTop: '0', fontSize: '15px' }}>
+                      5 en-suite safari tents spaced <strong>20 meters apart</strong> perched on a hilltop ridge overlooking the valley.
+                      Features raised viewing decks, Cloud 9 mattresses, and a <strong>hand-crafted natural rock cave bathroom</strong>.
+                    </p>
+                    <div className="deck-specs-list">
+                      <span>3-Star Graded</span>
+                      <span>Panoramic Hilltop View</span>
+                      <span>Cave-Crafted Stone Shower</span>
+                      <span>Cloud 9 Beds</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="chapter-media-pop">
+                {camp === 'valley' ? (
+                  <BeveledCard
+                    src="/images/facilities/valley-camp-suite.jpg"
+                    alt="Valley Camp luxury tent interior and slipper bath"
+                    tag="4★ Valley Camp"
+                    title="Luxury Canopy Tented Suite"
+                    subtitle="Spacious interior lounge, private elevated deck, and panoramic slipper bath overlooking the bush."
+                    onClick={() => reserve('Valley Tented Suite')}
+                  />
+                ) : (
+                  <BeveledCard
+                    src="/images/facilities/bush-camp-cave-ensuite.jpg"
+                    alt="Bush Camp natural rock cave ensuite bathroom"
+                    tag="3★ Bush Camp"
+                    title="Natural Cave-Rock Ensuite"
+                    subtitle="Sculpted from local sandstone and boulders to blend seamlessly into the wild hillside terrain."
+                    onClick={() => reserve('Bush Camp Suite')}
+                  />
+                )}
+              </div>
+            </div>
+          </section>
+
+          {/* SCENE 05: SUNSET LAPA & BOMA FIRE PIT */}
+          <section className="chapter lapa-copy" data-layer="lapa-copy">
+            <div className="chapter-split">
+              <div>
+                <p className="eyebrow">05 / THE SUNSET RESTAURANT & BOMA</p>
+                <h2>
+                  Firelight under<br />
+                  <em>African skies.</em>
+                </h2>
+                <p className="body-copy">
+                  Built exclusively for resident lodge guests, the Sunset Restaurant features walls culled directly from
+                  Inkwenkwezi’s native geology, high thatch ceilings, a cozy stone fireplace, and an open-air boma fire pit
+                  overlooking glorious African sunsets.
+                </p>
+                <div className="moments">
+                  <span>Native Sandstone Walls & Thatch</span>
+                  <span>Open-Air Boma Fire Pit</span>
+                  <span>Fine South African Wine Selection</span>
+                  <span>Exclusively for Resident Guests</span>
+                </div>
+              </div>
+              <div className="chapter-media-pop">
+                <BeveledCard
+                  src="/images/facilities/sunset-lapa-restaurant.jpg"
+                  alt="Sunset Lapa and stone boma fireplace"
+                  tag="Resident Dining"
+                  title="The Sunset Restaurant & Lounge"
+                  subtitle="Relax next to the open-air fire pit with a glass of wine as stars illuminate the valley."
+                  onClick={() => reserve('Lodge Stay & Boma Dinner')}
+                />
+              </div>
+            </div>
+          </section>
+
+          {/* SCENE 06: EMTHOMBENI & OPEN-AIR FIG TREE CHAPEL */}
+          <section className="chapter wedding-copy" data-layer="wedding-copy">
+            <div className="chapter-split">
+              <div>
+                <p className="eyebrow">06 / EMTHOMBENI & THE FIG TREE CHAPEL</p>
+                <h2>
+                  Grand gatherings.<br />
+                  <em>Timeless vows.</em>
+                </h2>
+                <p className="body-copy">
+                  Emthombeni (“Under the Wild Fig Tree”) seats up to 300 guests with floor-to-ceiling glass folding doors opening
+                  onto lush gardens and sweeping bushveld views. Take your vows down the red carpet in the enchanting open-air chapel
+                  shaded by a majestic ancient Wild Fig Tree.
+                </p>
+                <div className="moments">
+                  <span>Open-Air Wild Fig Tree Chapel</span>
+                  <span>Emthombeni Grand Venue (Up to 300 Pax)</span>
+                  <span>Legendary Sunday Buffet (R295/Adult)</span>
+                  <span>All-Weather Covered Deck Backup</span>
+                </div>
+              </div>
+              <div className="chapter-media-pop">
+                <BeveledCard
+                  src="/images/facilities/wedding-fig-tree-chapel.jpg"
+                  alt="Open-air wedding chapel under the ancient Wild Fig Tree"
+                  tag="Wild Coast Weddings"
+                  title="Open-Air Wild Fig Chapel"
+                  subtitle="Red carpet aisle, water features, and gentle birdsong beneath the sacred Wild Fig Tree canopy."
+                  onClick={() => reserve('Weddings & Events')}
+                />
+              </div>
+            </div>
+          </section>
+
+          {/* SCENE 07: WILD COAST ADVENTURES */}
+          <section className="chapter experiences-copy" data-layer="experiences-copy">
+            <p className="eyebrow">07 / WILD COAST ADVENTURES & EXPEDITIONS</p>
+            <h2>
+              Trails, tides &amp;<br />
+              <em>untamed paths.</em>
+            </h2>
+            <p className="body-copy">
+              Beyond game drives, Inkwenkwezi invites you to paddle tranquil tidal waters and conquer rugged bushveld slopes.
+            </p>
+            <div className="experience-cards">
+              <div className="experience-card" onClick={() => reserve('Guided Quad Biking Tour')}>
+                <span className="card-badge">Quad Safari</span>
+                <h3>Guided Quad Biking</h3>
+                <p>1 to 2 hour guided quad trails navigating river crossings, technical ridges, and panoramic valley viewpoints.</p>
+                <span className="card-link">
+                  Explore trail <ArrowUpRight size={14} />
+                </span>
+              </div>
+              <div className="experience-card" onClick={() => reserve('Estuary Canoeing')}>
+                <span className="card-badge">Tidal Waters</span>
+                <h3>Tidal Estuary Canoeing</h3>
+                <p>Paddle down the tranquil saltwater estuary, gliding past riverine thicket and nesting African fish eagles.</p>
+                <span className="card-link">
+                  Book canoeing <ArrowUpRight size={14} />
+                </span>
+              </div>
+              <div className="experience-card" onClick={() => reserve('Sunday Buffet at Emthombeni')}>
+                <span className="card-badge">Buffet Lunch</span>
+                <h3>Sunday Buffet at Emthombeni</h3>
+                <p>Home-style gourmet Sunday feast overlooking the reserve. R295/adult, half-price under 10, free under 3.</p>
+                <span className="card-link">
+                  Reserve table <ArrowUpRight size={14} />
+                </span>
+              </div>
+            </div>
+          </section>
+
+          {/* SCENE 08: PLAN YOUR ESCAPE & CONCIERGE */}
+          <section className="chapter last-copy" data-layer="last-copy">
+            <p className="eyebrow">08 / YOUR WILD COAST JOURNEY</p>
+            <h2>
+              Your wild escape<br />
+              <em>awaits.</em>
+            </h2>
+            <div className="cta-actions">
+              <button className="pill light" onClick={() => reserve()}>
+                Preview reservation <ArrowUpRight size={18} />
+              </button>
+              <a
+                href="https://wa.me/27437343234?text=Hi%20Inkwenkwezi,%20I'm%20enquiring%20about%20a%20stay%20and%20safari%20experience"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="pill whatsapp"
+              >
+                <MessageCircle size={18} /> Chat on WhatsApp
+              </a>
+              <a href="tel:+27437343234" className="pill" style={{ background: '#142d2290' }}>
+                <Phone size={16} /> +27 (043) 734 3234
+              </a>
+            </div>
+            <p className="concept">
+              Independent speculative concept by LocalAI Systems · Not commissioned by or affiliated with Inkwenkwezi Private Game Reserve<br />
+              Schafli Road, East Coast, East London, South Africa · pgr@inkwenkwezi.co.za
+            </p>
+            <button className="again" onClick={() => go(0)}>
+              Wander back to the beginning
+            </button>
+          </section>
+
+          <div className="scene-footer">
+            <span className="place-note">FIVE BIOMES · BIG 4 · MALARIA-FREE</span>
+            <nav className="chapters" aria-label="Journey chapters">
+              {chapters.map((name, i) => (
+                <button key={name} aria-current={active === i ? 'step' : undefined} onClick={() => go(i)}>
+                  <span className="chapter-number">0{i + 1}</span>
+                  <span className="chapter-name">{name}</span>
+                </button>
+              ))}
+            </nav>
+            <span className="scroll-cue">
+              SCROLL TO WANDER <ArrowDown size={14} />
+            </span>
+          </div>
+
+          <div className="progress-track">
+            <div className="progress-fill" />
+          </div>
+        </div>
+      </div>
+
+      {/* Reservation & Stay Inquiry Dialog */}
+      <Dialog open={booking} onOpenChange={setBooking}>
+        <DialogContent className="booking">
+          <DialogTitle className="booking-title">Reserve your experience.</DialogTitle>
+          <DialogDescription>
+            Independent speculative concept by LocalAI Systems for Inkwenkwezi Private Game Reserve. Select your preferred
+            facility or safari below; direct WhatsApp channel connects to the reserve.
+          </DialogDescription>
+          {sent ? (
+            <div className="confirmation" role="status">
+              <Compass size={40} color="#c89d5c" />
+              <h3>Your escape, imagined.</h3>
+              <p>
+                {suite}, arriving {arrival}. You can also connect directly with Inkwenkwezi reservations at{' '}
+                <strong>+27 (043) 734 3234</strong> or on WhatsApp.
+              </p>
+              <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
+                <a
+                  href={`https://wa.me/27437343234?text=Hi%20Inkwenkwezi,%20I'd%20like%20to%20enquire%20about%20${encodeURIComponent(
+                    suite
+                  )}%20arriving%20${encodeURIComponent(arrival)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="pill whatsapp"
+                >
+                  <MessageCircle size={17} /> Confirm on WhatsApp
+                </a>
+                <button className="pill" onClick={() => setBooking(false)}>
+                  Back to reserve
+                </button>
+              </div>
+            </div>
+          ) : (
+            <form
+              onSubmit={e => {
+                e.preventDefault();
+                setSent(true);
+              }}
+            >
+              <label>
+                Your Experience / Accommodation
+                <select value={suite} onChange={e => setSuite(e.target.value)}>
+                  <option>Valley Tented Suite (4★ Canopy Decks)</option>
+                  <option>Bush Tented Suite (3★ Hilltop & Cave Ensuite)</option>
+                  <option>Guided 4×4 Game Drive (Day Safari)</option>
+                  <option>Sunday Buffet Lunch at Emthombeni</option>
+                  <option>Guided Quad Biking Safari</option>
+                  <option>Wedding or Function Venue Inquiry</option>
+                </select>
+              </label>
+              <div className="date-grid">
+                <label>
+                  Preferred Date
+                  <input
+                    type="date"
+                    required
+                    min={new Date().toLocaleDateString('en-CA')}
+                    value={arrival}
+                    onChange={e => setArrival(e.target.value)}
+                  />
+                </label>
+                <label>
+                  Guests
+                  <select>
+                    <option>2 guests</option>
+                    <option>1 guest</option>
+                    <option>3 guests</option>
+                    <option>4+ guests</option>
+                    <option>Group / Wedding (20+ guests)</option>
+                  </select>
+                </label>
+              </div>
+              <button className="pill" type="submit">
+                Preview my reservation <ArrowUpRight size={17} />
+              </button>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
+    </main>
+  );
 }
