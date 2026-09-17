@@ -25,7 +25,7 @@ export const chapters = [
   'Plan Your Escape'
 ];
 
-export const chapterStops = [0.00, 0.14, 0.28, 0.42, 0.56, 0.70, 0.84, 0.96];
+export const chapterStops = [0.00, 0.16, 0.30, 0.44, 0.58, 0.72, 0.83, 0.96];
 
 type BiomeId = 'estuary' | 'umtiza' | 'bushveld' | 'grassland' | 'riverine';
 
@@ -69,7 +69,7 @@ const BIOME_DATA: Record<BiomeId, BiomeInfo> = {
   },
   grassland: {
     name: 'Coastal Grassland',
-    src: '/images/facilities/sunset-lapa-aerial.jpg',
+    src: '/images/editorial/sunset-lapa-aerial-4k.webp',
     tag: 'Endangered Habitat',
     title: 'Rolling Coastal Grassland',
     badge: 'Rare Stangeria Cycads',
@@ -128,13 +128,13 @@ export default function Home() {
 
       // 8 distinct scene trigger zones
       const scene =
-        p < 0.08 ? 0 :
-        p < 0.21 ? 1 :
-        p < 0.35 ? 2 :
-        p < 0.49 ? 3 :
-        p < 0.63 ? 4 :
-        p < 0.77 ? 5 :
-        p < 0.90 ? 6 : 7;
+        p < 0.13 ? 0 :
+        p < 0.27 ? 1 :
+        p < 0.41 ? 2 :
+        p < 0.55 ? 3 :
+        p < 0.69 ? 4 :
+        p < 0.81 ? 5 :
+        p < 0.92 ? 6 : 7;
 
       if (scene !== previous) {
         previous = scene;
@@ -165,70 +165,78 @@ export default function Home() {
         els[name].setAttribute('aria-hidden', String(opacity < 0.35));
       };
 
-      // Dynamic parallax background planes
-      const approach = ease(range(p, 0.02, 0.12));
+      // 01: ScrollFilm: Fluid glide through forest canopy to the open door, smoothly pushing through doorway
+      const doorZoom = ease(range(p, 0.09, 0.14));
+      apply('scroll-film', {
+        opacity: 1 - ease(range(p, 0.12, 0.16)),
+        transform: `scale(${1 + doorZoom * 0.35}) translate3d(${-doorZoom * 4}%, ${-doorZoom * 2}%, 0)`
+      });
+
+      // Initial poster layer beneath canvas (fades out as film draws)
       apply('forest', {
-        transform: `scale(${1 + approach * 0.4})`
+        opacity: 1 - ease(range(p, 0.02, 0.05))
       });
 
+      // Framing foreground canopy drifts past as camera pushes forward
+      const canopyApproach = ease(range(p, 0.01, 0.09));
       apply('canopy', {
-        opacity: (1 - ease(range(p, 0.06, 0.12))) * 0.95,
-        transform: `scale(${1 + approach * 0.9}) translate3d(${-approach * 3}%,${-approach * 5}%,0)`
+        opacity: (1 - ease(range(p, 0.03, 0.09))) * 0.95,
+        transform: `scale(${1 + canopyApproach * 0.7}) translate3d(${-canopyApproach * 3}%, ${-canopyApproach * 4}%, 0)`
       });
 
-      // Scene 02: Tidal Estuary Canoe & Walk Parks (revealed right as camera crosses the doorway)
-      const biomesPhase = ease(range(p, 0.08, 0.28));
+      // Scene 02: Tidal Estuary Canoeing & Five Biomes (revealed seamlessly as camera crosses through doorway)
+      const biomesPhase = ease(range(p, 0.12, 0.28));
       apply('biomes-bg', {
-        opacity: fade(p, 0.08, 0.13, 0.24, 0.28),
-        transform: `scale(${1.07 - biomesPhase * 0.07})`
+        opacity: fade(p, 0.12, 0.16, 0.24, 0.28),
+        transform: `scale(${1.06 - biomesPhase * 0.06})`
       });
 
       // Scene 03: Guided 4x4 Safari & White Lions Pride
-      const lionsPhase = ease(range(p, 0.24, 0.42));
+      const lionsPhase = ease(range(p, 0.26, 0.42));
       apply('lions-bg', {
-        opacity: fade(p, 0.24, 0.28, 0.38, 0.42),
-        transform: `scale(${1.07 - lionsPhase * 0.07})`
+        opacity: fade(p, 0.26, 0.30, 0.38, 0.42),
+        transform: `scale(${1.06 - lionsPhase * 0.06})`
       });
 
       // Scene 04: Tented Sanctuaries (Valley Camp vs Bush Camp)
-      const suitePhase = ease(range(p, 0.38, 0.56));
-      const suiteAlpha = fade(p, 0.38, 0.42, 0.52, 0.56);
+      const suitePhase = ease(range(p, 0.40, 0.56));
+      const suiteAlpha = fade(p, 0.40, 0.44, 0.52, 0.56);
       const isValley = campRef.current === 'valley';
       apply('suite-valley-bg', {
         opacity: isValley ? suiteAlpha : 0,
-        transform: `scale(${1.07 - suitePhase * 0.07})`
+        transform: `scale(${1.06 - suitePhase * 0.06})`
       });
       apply('suite-bush-bg', {
         opacity: !isValley ? suiteAlpha : 0,
-        transform: `scale(${1.07 - suitePhase * 0.07})`
+        transform: `scale(${1.06 - suitePhase * 0.06})`
       });
 
       // Scene 05: Sunset Lapa Fireplace & Boma Fire Pit
-      const lapaPhase = ease(range(p, 0.52, 0.70));
+      const lapaPhase = ease(range(p, 0.54, 0.70));
       apply('lapa-bg', {
-        opacity: fade(p, 0.52, 0.56, 0.66, 0.70),
-        transform: `scale(${1.07 - lapaPhase * 0.07})`
+        opacity: fade(p, 0.54, 0.58, 0.66, 0.70),
+        transform: `scale(${1.06 - lapaPhase * 0.06})`
       });
 
       // Scene 06: Emthombeni Banquet Hall Dining Room
-      const banquetPhase = ease(range(p, 0.66, 0.81));
+      const banquetPhase = ease(range(p, 0.68, 0.82));
       apply('banquet-bg', {
-        opacity: fade(p, 0.66, 0.70, 0.76, 0.80),
-        transform: `scale(${1.07 - banquetPhase * 0.07})`
+        opacity: fade(p, 0.68, 0.72, 0.78, 0.82),
+        transform: `scale(${1.06 - banquetPhase * 0.06})`
       });
 
       // Scene 07: Open-Air Fig Tree Wedding Chapel
-      const chapelPhase = ease(range(p, 0.76, 0.93));
+      const chapelPhase = ease(range(p, 0.78, 0.93));
       apply('chapel-bg', {
-        opacity: fade(p, 0.76, 0.80, 0.88, 0.92),
-        transform: `scale(${1.07 - chapelPhase * 0.07})`
+        opacity: fade(p, 0.78, 0.82, 0.89, 0.93),
+        transform: `scale(${1.06 - chapelPhase * 0.06})`
       });
 
       // Scene 08: Wild Coast Escape
-      const closingPhase = ease(range(p, 0.88, 1.00));
+      const closingPhase = ease(range(p, 0.89, 1.00));
       apply('closing-bg', {
-        opacity: ease(range(p, 0.88, 0.93)),
-        transform: `scale(${1.06 - closingPhase * 0.06})`
+        opacity: ease(range(p, 0.89, 0.94)),
+        transform: `scale(${1.05 - closingPhase * 0.05})`
       });
 
       const end = ease(range(p, 0.91, 0.98));
@@ -236,53 +244,53 @@ export default function Home() {
         background: `linear-gradient(90deg, rgba(4,20,16,${0.62 + lapaPhase * 0.12 + end * 0.1}), rgba(4,20,16,0.22)), linear-gradient(0deg, rgba(4,20,16,0.72), transparent 45%)`
       });
 
-      // Chapter text layers
+      // Chapter text layers with subtle, elegant vertical drift (safe area prevents bottom-clipping)
       content(
         'arrival',
-        1 - ease(range(p, 0.05, 0.13)),
-        `translate3d(${-range(p, 0, 0.15) * 10}%,${-range(p, 0, 0.15) * 18}%,0) scale(${1 + range(p, 0, 0.15) * 0.15})`
+        1 - ease(range(p, 0.03, 0.10)),
+        `translate3d(0, ${-range(p, 0, 0.10) * 20}px, 0)`
       );
 
       content(
         'biomes-copy',
-        fade(p, 0.11, 0.15, 0.24, 0.28),
-        `translate3d(0,${(1 - ease(range(p, 0.09, 0.16))) * 45 - range(p, 0.23, 0.29) * 50}px,0)`
+        fade(p, 0.13, 0.17, 0.24, 0.28),
+        `translate3d(0, ${(1 - ease(range(p, 0.12, 0.18))) * 20 - range(p, 0.23, 0.28) * 20}px, 0)`
       );
 
       content(
         'wildlife-copy',
-        fade(p, 0.25, 0.29, 0.38, 0.42),
-        `translate3d(${(1 - ease(range(p, 0.23, 0.30))) * 40 - range(p, 0.37, 0.43) * 60}px,0,0)`
+        fade(p, 0.27, 0.31, 0.38, 0.42),
+        `translate3d(0, ${(1 - ease(range(p, 0.26, 0.32))) * 20 - range(p, 0.37, 0.42) * 20}px, 0)`
       );
 
       content(
         'suite-copy',
-        fade(p, 0.39, 0.43, 0.52, 0.56),
-        `translate3d(0,${(1 - ease(range(p, 0.37, 0.44))) * 45 - range(p, 0.51, 0.57) * 50}px,0)`
+        fade(p, 0.41, 0.45, 0.52, 0.56),
+        `translate3d(0, ${(1 - ease(range(p, 0.40, 0.46))) * 20 - range(p, 0.51, 0.56) * 20}px, 0)`
       );
 
       content(
         'lapa-copy',
-        fade(p, 0.53, 0.57, 0.66, 0.70),
-        `translate3d(0,${(1 - ease(range(p, 0.51, 0.58))) * 45 - range(p, 0.65, 0.71) * 50}px,0)`
+        fade(p, 0.55, 0.59, 0.66, 0.70),
+        `translate3d(0, ${(1 - ease(range(p, 0.54, 0.60))) * 20 - range(p, 0.65, 0.70) * 20}px, 0)`
       );
 
       content(
         'wedding-copy',
-        fade(p, 0.67, 0.71, 0.80, 0.84),
-        `translate3d(0,${(1 - ease(range(p, 0.65, 0.72))) * 45 - range(p, 0.79, 0.85) * 50}px,0)`
+        fade(p, 0.69, 0.73, 0.79, 0.83),
+        `translate3d(0, ${(1 - ease(range(p, 0.68, 0.74))) * 20 - range(p, 0.78, 0.83) * 20}px, 0)`
       );
 
       content(
         'experiences-copy',
-        fade(p, 0.81, 0.85, 0.91, 0.94),
-        `translate3d(0,${(1 - ease(range(p, 0.79, 0.86))) * 45 - range(p, 0.90, 0.95) * 50}px,0)`
+        fade(p, 0.81, 0.84, 0.90, 0.93),
+        `translate3d(0, ${(1 - ease(range(p, 0.80, 0.85))) * 20 - range(p, 0.89, 0.93) * 20}px, 0)`
       );
 
       content(
         'last-copy',
-        ease(range(p, 0.92, 0.97)),
-        `translate3d(0,${(1 - end) * 60}px,0) scale(${0.94 + end * 0.06})`
+        ease(range(p, 0.92, 0.96)),
+        `translate3d(0, ${(1 - end) * 25}px, 0)`
       );
 
       if (Math.abs(target - current) > 0.0001) frame = requestAnimationFrame(paint);
@@ -348,7 +356,7 @@ export default function Home() {
 
       <div className="journey" ref={journey}>
         <div className="stage">
-          {/* Base Arrival Forest Landscape */}
+          {/* Base Arrival Forest Landscape fallback poster */}
           <div className="scene-image forest" data-layer="forest">
             <Image
               src="/images/forest-lodge.webp"
@@ -449,7 +457,7 @@ export default function Home() {
           {/* 08: Closing Wild Coast Escape */}
           <div className="scene-image closing-bg" data-layer="closing-bg">
             <Image
-              src="/images/facilities/sunset-lapa-aerial.jpg"
+              src="/images/editorial/sunset-lapa-aerial-4k.webp"
               alt="Panoramic Wild Coast landscape at Inkwenkwezi Private Game Reserve"
               fill
               unoptimized
@@ -606,7 +614,7 @@ export default function Home() {
 
                 {camp === 'valley' ? (
                   <div>
-                    <p className="body-copy" style={{ marginTop: '0', fontSize: '15px' }}>
+                    <p className="body-copy" style={{ marginTop: '0', fontSize: '14.5px' }}>
                       6 custom-designed luxury safari tents spaced <strong>50 meters apart</strong> for absolute privacy. Nestled inside
                       the indigenous tree canopy with private covered viewing decks and a freestanding slipper bath tub.
                     </p>
@@ -619,7 +627,7 @@ export default function Home() {
                   </div>
                 ) : (
                   <div>
-                    <p className="body-copy" style={{ marginTop: '0', fontSize: '15px' }}>
+                    <p className="body-copy" style={{ marginTop: '0', fontSize: '14.5px' }}>
                       5 en-suite safari tents spaced <strong>20 meters apart</strong> perched on a hilltop ridge overlooking the valley.
                       Features raised viewing decks, Cloud 9 mattresses, and a <strong>hand-crafted natural rock cave bathroom</strong>.
                     </p>
@@ -732,7 +740,7 @@ export default function Home() {
               Trails, tides &amp;<br />
               <em>untamed paths.</em>
             </h2>
-            <p className="body-copy">
+            <p className="body-copy" style={{ marginBottom: '14px' }}>
               Beyond game drives, Inkwenkwezi invites you to paddle tranquil tidal waters and conquer rugged bushveld slopes.
             </p>
             <AdventureDeck onSelect={name => reserve(name)} />
