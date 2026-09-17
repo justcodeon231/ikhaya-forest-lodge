@@ -95,10 +95,15 @@ export default function Home() {
   const [activeBiome, setActiveBiome] = useState<BiomeId>('umtiza');
   const currentBiome = BIOME_DATA[activeBiome];
   const [camp, setCamp] = useState<'valley' | 'bush'>('valley');
+  const campRef = useRef(camp);
   const [booking, setBooking] = useState(false);
   const [suite, setSuite] = useState('Valley Tented Suite');
   const [sent, setSent] = useState(false);
   const [arrival, setArrival] = useState('');
+
+  useEffect(() => {
+    campRef.current = camp;
+  }, [camp]);
 
   useEffect(() => {
     const root = journey.current!;
@@ -160,45 +165,75 @@ export default function Home() {
         els[name].setAttribute('aria-hidden', String(opacity < 0.35));
       };
 
-      const approach = ease(range(p, 0.03, 0.20));
-      const enter = ease(range(p, 0.22, 0.38));
-      const leave = ease(range(p, 0.46, 0.58));
-      const lapaPhase = ease(range(p, 0.52, 0.64));
-      const weddingPhase = ease(range(p, 0.66, 0.78));
-      const adventurePhase = ease(range(p, 0.80, 0.90));
-      const end = ease(range(p, 0.91, 0.98));
-
       // Dynamic parallax background planes
+      const approach = ease(range(p, 0.02, 0.12));
       apply('forest', {
-        transform: `scale(${1 + approach * 0.55}) translate3d(${-approach * 4}%,${approach * 2}%,0)`
+        transform: `scale(${1 + approach * 0.4})`
       });
 
       apply('canopy', {
-        opacity: (1 - ease(range(p, 0.10, 0.22))) * 0.95,
-        transform: `scale(${1 + approach * 1.2}) translate3d(${-approach * 3}%,${-approach * 6}%,0)`
+        opacity: (1 - ease(range(p, 0.06, 0.12))) * 0.95,
+        transform: `scale(${1 + approach * 0.9}) translate3d(${-approach * 3}%,${-approach * 5}%,0)`
       });
 
-      // Midground accommodation preview
-      apply('suite-image', {
-        opacity: ease(range(p, 0.36, 0.44)) * (1 - ease(range(p, 0.54, 0.60))),
-        clipPath: `inset(${(1 - enter) * 20}% ${(1 - enter) * 28}% ${(1 - enter) * 14}% ${(1 - enter) * 4}% round(10px))`,
-        transform: `translate3d(${(1 - enter) * 20 - leave * 55}%,${(1 - enter) * 10 - leave * 10}%,0) scale(${0.92 + enter * 0.08})`
+      // Scene 02: Tidal Estuary Canoe & Walk Parks (revealed right as camera crosses the doorway)
+      const biomesPhase = ease(range(p, 0.08, 0.28));
+      apply('biomes-bg', {
+        opacity: fade(p, 0.08, 0.13, 0.24, 0.28),
+        transform: `scale(${1.07 - biomesPhase * 0.07})`
       });
 
-      // Sunset lapa twilight ambient background
+      // Scene 03: Guided 4x4 Safari & White Lions Pride
+      const lionsPhase = ease(range(p, 0.24, 0.42));
+      apply('lions-bg', {
+        opacity: fade(p, 0.24, 0.28, 0.38, 0.42),
+        transform: `scale(${1.07 - lionsPhase * 0.07})`
+      });
+
+      // Scene 04: Tented Sanctuaries (Valley Camp vs Bush Camp)
+      const suitePhase = ease(range(p, 0.38, 0.56));
+      const suiteAlpha = fade(p, 0.38, 0.42, 0.52, 0.56);
+      const isValley = campRef.current === 'valley';
+      apply('suite-valley-bg', {
+        opacity: isValley ? suiteAlpha : 0,
+        transform: `scale(${1.07 - suitePhase * 0.07})`
+      });
+      apply('suite-bush-bg', {
+        opacity: !isValley ? suiteAlpha : 0,
+        transform: `scale(${1.07 - suitePhase * 0.07})`
+      });
+
+      // Scene 05: Sunset Lapa Fireplace & Boma Fire Pit
+      const lapaPhase = ease(range(p, 0.52, 0.70));
       apply('lapa-bg', {
-        opacity: ease(range(p, 0.50, 0.56)) * (1 - ease(range(p, 0.64, 0.68))),
-        transform: `scale(${1.08 - lapaPhase * 0.08})`
+        opacity: fade(p, 0.52, 0.56, 0.66, 0.70),
+        transform: `scale(${1.07 - lapaPhase * 0.07})`
       });
 
-      // Emthombeni grand venue backdrop
-      apply('wedding-bg', {
-        opacity: ease(range(p, 0.64, 0.70)) * (1 - ease(range(p, 0.78, 0.83))),
-        transform: `scale(${1.06 - weddingPhase * 0.06})`
+      // Scene 06: Emthombeni Banquet Hall Dining Room
+      const banquetPhase = ease(range(p, 0.66, 0.81));
+      apply('banquet-bg', {
+        opacity: fade(p, 0.66, 0.70, 0.76, 0.80),
+        transform: `scale(${1.07 - banquetPhase * 0.07})`
       });
 
+      // Scene 07: Open-Air Fig Tree Wedding Chapel
+      const chapelPhase = ease(range(p, 0.76, 0.93));
+      apply('chapel-bg', {
+        opacity: fade(p, 0.76, 0.80, 0.88, 0.92),
+        transform: `scale(${1.07 - chapelPhase * 0.07})`
+      });
+
+      // Scene 08: Wild Coast Escape
+      const closingPhase = ease(range(p, 0.88, 1.00));
+      apply('closing-bg', {
+        opacity: ease(range(p, 0.88, 0.93)),
+        transform: `scale(${1.06 - closingPhase * 0.06})`
+      });
+
+      const end = ease(range(p, 0.91, 0.98));
       apply('shade', {
-        background: `linear-gradient(90deg, rgba(4,20,16,${0.55 + lapaPhase * 0.15 + end * 0.1}), rgba(4,20,16,0.18)), linear-gradient(0deg, rgba(4,20,16,0.72), transparent 45%)`
+        background: `linear-gradient(90deg, rgba(4,20,16,${0.62 + lapaPhase * 0.12 + end * 0.1}), rgba(4,20,16,0.22)), linear-gradient(0deg, rgba(4,20,16,0.72), transparent 45%)`
       });
 
       // Chapter text layers
@@ -313,11 +348,11 @@ export default function Home() {
 
       <div className="journey" ref={journey}>
         <div className="stage">
-          {/* Background & Scrollytelling Film Planes */}
+          {/* Base Arrival Forest Landscape */}
           <div className="scene-image forest" data-layer="forest">
             <Image
-              src="/images/facilities/sunset-lapa-aerial.jpg"
-              alt="Inkwenkwezi Private Game Reserve along the Wild Coast"
+              src="/images/forest-lodge.webp"
+              alt="Inkwenkwezi Private Game Reserve Wild Coast forest"
               fill
               priority
               unoptimized
@@ -325,40 +360,101 @@ export default function Home() {
             />
           </div>
 
-          <div className="scene-image suite-image" data-layer="suite-image" style={{ zIndex: 4 }}>
-            <Image
-              src={camp === 'valley' ? '/images/editorial/valley-camp-suite-2k.webp' : '/images/editorial/bush-camp-hilltop-2k.webp'}
-              alt="Tented luxury safari suite overlooking indigenous bush canopy"
-              fill
-              unoptimized
-              sizes="100vw"
-            />
-          </div>
-
-          <div className="scene-image lapa-bg" data-layer="lapa-bg" style={{ zIndex: 4, opacity: 0, pointerEvents: 'none' }}>
-            <Image
-              src="/images/editorial/sunset-lapa-twilight-2k.webp"
-              alt="The Sunset Restaurant and stone boma fire pit at dusk"
-              fill
-              unoptimized
-              sizes="100vw"
-            />
-          </div>
-
-          <div className="scene-image wedding-bg" data-layer="wedding-bg" style={{ zIndex: 4, opacity: 0, pointerEvents: 'none' }}>
-            <Image
-              src="/images/editorial/emthombeni-banquet-2k.webp"
-              alt="Emthombeni banquet hall with floor-to-ceiling glass folding doors"
-              fill
-              unoptimized
-              sizes="100vw"
-            />
-          </div>
-
+          {/* 01: Scroll Film: Zooming through forest canopy up to the open door */}
           <ScrollFilm />
 
+          {/* Canopy overlay framing the arrival */}
           <div className="canopy-layer" data-layer="canopy" aria-hidden="true">
             <Image src="/images/canopy-overlay.webp" alt="" fill unoptimized sizes="100vw" />
+          </div>
+
+          {/* EDITORIAL SLIDESHOW PLANES (revealed as user enters the doorway) */}
+          {/* 02: Tidal Estuary Canoeing & Five Biomes */}
+          <div className="scene-image biomes-bg" data-layer="biomes-bg">
+            <Image
+              src="/images/editorial/estuary-canoe-2k.webp"
+              alt="Canoe drifting on the tranquil tidal estuary of Inkwenkwezi"
+              fill
+              unoptimized
+              sizes="100vw"
+            />
+          </div>
+
+          {/* 03: 4x4 Safari & White Lions Pride */}
+          <div className="scene-image lions-bg" data-layer="lions-bg">
+            <Image
+              src="/images/editorial/white-lions-pride-2k.webp"
+              alt="The magnificent White Lions pride resting on the coastal grassland"
+              fill
+              unoptimized
+              sizes="100vw"
+            />
+          </div>
+
+          {/* 04: Tented Sanctuaries (Valley Camp Luxury Suite) */}
+          <div className="scene-image suite-valley-bg" data-layer="suite-valley-bg">
+            <Image
+              src="/images/editorial/valley-camp-suite-2k.webp"
+              alt="Valley Camp luxury safari suite with panoramic slipper bathtub overlooking canopy"
+              fill
+              unoptimized
+              sizes="100vw"
+            />
+          </div>
+
+          {/* 04b: Tented Sanctuaries (Bush Camp Hilltop Ridge) */}
+          <div className="scene-image suite-bush-bg" data-layer="suite-bush-bg">
+            <Image
+              src="/images/editorial/bush-camp-hilltop-2k.webp"
+              alt="Bush Camp luxury safari tent perched on hilltop ridge"
+              fill
+              unoptimized
+              sizes="100vw"
+            />
+          </div>
+
+          {/* 05: Sunset Lapa Fireplace & Boma at Dusk */}
+          <div className="scene-image lapa-bg" data-layer="lapa-bg">
+            <Image
+              src="/images/editorial/sunset-lapa-twilight-2k.webp"
+              alt="Sunset Lapa restaurant and stone boma fireplace under evening stars"
+              fill
+              unoptimized
+              sizes="100vw"
+            />
+          </div>
+
+          {/* 06: Emthombeni Grand Venue Banquet Hall Dining Room */}
+          <div className="scene-image banquet-bg" data-layer="banquet-bg">
+            <Image
+              src="/images/editorial/emthombeni-banquet-2k.webp"
+              alt="Emthombeni banquet hall dining room with high timber ceiling and glass folding doors"
+              fill
+              unoptimized
+              sizes="100vw"
+            />
+          </div>
+
+          {/* 07: Open-Air Wild Fig Tree Wedding Chapel */}
+          <div className="scene-image chapel-bg" data-layer="chapel-bg">
+            <Image
+              src="/images/editorial/wedding-chapel-2k.webp"
+              alt="Romantic open-air wedding chapel sheltered under the ancient Wild Fig Tree"
+              fill
+              unoptimized
+              sizes="100vw"
+            />
+          </div>
+
+          {/* 08: Closing Wild Coast Escape */}
+          <div className="scene-image closing-bg" data-layer="closing-bg">
+            <Image
+              src="/images/facilities/sunset-lapa-aerial.jpg"
+              alt="Panoramic Wild Coast landscape at Inkwenkwezi Private Game Reserve"
+              fill
+              unoptimized
+              sizes="100vw"
+            />
           </div>
 
           {/* Ember particles active on Sunset Lapa & Boma */}
@@ -456,11 +552,11 @@ export default function Home() {
               </div>
               <div className="chapter-media-pop">
                 <BeveledCard
-                  src="/images/editorial/white-lions-pride-2k.webp"
-                  alt="The rare genuine White Lions of Inkwenkwezi"
-                  tag="African Legend"
-                  title="The Rare White Lions"
-                  subtitle="Non-albino recessive gene lions with dark pigmentation pads, thriving in the coastal bushveld."
+                  src="/images/facilities/safari-game-drive.jpg"
+                  alt="Open 4x4 guided safari cruiser navigating the reserve"
+                  tag="Guided Game Drives"
+                  title="Open 4×4 Safari Fleet"
+                  subtitle="Track the Big 5 and rare White Lions across 5 distinct biomes with dedicated field guides."
                   onClick={() => reserve('Day Safari & Game Drive')}
                 />
               </div>
@@ -484,7 +580,11 @@ export default function Home() {
                 <div className="deck-toggle-wrapper" role="tablist" aria-label="Lodge accommodation selection">
                   <button
                     className={`deck-toggle-btn ${camp === 'valley' ? 'is-active' : ''}`}
-                    onClick={() => setCamp('valley')}
+                    onClick={() => {
+                      setCamp('valley');
+                      campRef.current = 'valley';
+                      window.dispatchEvent(new Event('scroll'));
+                    }}
                     role="tab"
                     aria-selected={camp === 'valley'}
                   >
@@ -492,7 +592,11 @@ export default function Home() {
                   </button>
                   <button
                     className={`deck-toggle-btn ${camp === 'bush' ? 'is-active' : ''}`}
-                    onClick={() => setCamp('bush')}
+                    onClick={() => {
+                      setCamp('bush');
+                      campRef.current = 'bush';
+                      window.dispatchEvent(new Event('scroll'));
+                    }}
                     role="tab"
                     aria-selected={camp === 'bush'}
                   >
@@ -532,7 +636,7 @@ export default function Home() {
               <div className="chapter-media-pop">
                 {camp === 'valley' ? (
                   <BeveledCard
-                    src="/images/editorial/valley-camp-suite-2k.webp"
+                    src="/images/facilities/valley-camp-suite.jpg"
                     alt="Valley Camp luxury tent interior and slipper bath"
                     tag="4★ Valley Camp"
                     title="Luxury Canopy Tented Suite"
@@ -541,8 +645,8 @@ export default function Home() {
                   />
                 ) : (
                   <BeveledCard
-                    src="/images/editorial/bush-camp-hilltop-2k.webp"
-                    alt="Bush Camp hilltop luxury safari tent"
+                    src="/images/facilities/bush-camp-cave-ensuite.jpg"
+                    alt="Bush Camp handcrafted natural rock cave bathroom"
                     tag="3★ Bush Camp"
                     title="Hilltop Ridge Safari Suite"
                     subtitle="Panoramic hilltop vantage point, Cloud 9 bed, raised viewing deck, and hand-crafted natural cave rock ensuite."
@@ -576,8 +680,8 @@ export default function Home() {
               </div>
               <div className="chapter-media-pop">
                 <BeveledCard
-                  src="/images/editorial/sunset-lapa-twilight-2k.webp"
-                  alt="Sunset Lapa and stone boma fireplace at dusk"
+                  src="/images/facilities/sunset-lapa-restaurant.jpg"
+                  alt="Sunset Lapa restaurant and lounge interior"
                   tag="Resident Dining"
                   title="The Sunset Restaurant & Lounge"
                   subtitle="Relax next to the open-air fire pit with a glass of wine as stars illuminate the valley."

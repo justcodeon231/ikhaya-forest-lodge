@@ -196,34 +196,19 @@ button:focus-visible, a:focus-visible {
   position: absolute;
   inset: 0;
   will-change: transform, opacity;
-  transform-origin: 72% 50%;
+  transform-origin: 50% 50%;
   pointer-events: none;
+  opacity: 0;
+  z-index: 1;
 }
 
 .scene-image img {
   object-fit: cover;
 }
 
-.forest {
-  z-index: 0;
-}
-
-.suite-image {
+.scene-image.forest {
+  opacity: 1;
   z-index: 1;
-  opacity: 0;
-  clip-path: inset(24% 32% 16% 5%);
-  transform: translate(42%, 32%) rotate(9deg) scale(0.88);
-}
-
-.pool-image {
-  z-index: 2;
-  opacity: 0;
-  clip-path: circle(0% at 78% 65%);
-}
-
-.return-image {
-  z-index: 3;
-  opacity: 0;
 }
 
 .shade {
@@ -952,22 +937,28 @@ button:focus-visible, a:focus-visible {
     background: linear-gradient(90deg, #041410bb, #04141055), url('/images/forest-lodge.webp') center/cover;
   }
   .biomes-copy {
-    background-image: linear-gradient(90deg, #041410bb, #04141055), url('/images/forest-pool.webp');
+    background-image: linear-gradient(90deg, #041410bb, #04141055), url('/images/editorial/estuary-canoe-2k.webp');
   }
   .wildlife-copy {
-    background-image: linear-gradient(90deg, #041410bb, #04141055), url('/images/film-pool.webp');
+    background-image: linear-gradient(90deg, #041410bb, #04141055), url('/images/editorial/white-lions-pride-2k.webp');
   }
   .suite-copy {
     max-width: none;
-    background-image: linear-gradient(90deg, #041410bb, #04141055), url('/images/film-suite.webp');
+    background-image: linear-gradient(90deg, #041410bb, #04141055), url('/images/editorial/valley-camp-suite-2k.webp');
+  }
+  .lapa-copy {
+    background-image: linear-gradient(90deg, #041410bb, #04141055), url('/images/editorial/sunset-lapa-twilight-2k.webp');
+  }
+  .wedding-copy {
+    background-image: linear-gradient(90deg, #041410bb, #04141055), url('/images/editorial/emthombeni-banquet-2k.webp');
   }
   .experiences-copy {
     max-width: none;
-    background-image: linear-gradient(90deg, #041410bb, #04141055), url('/images/forest-lodge.webp');
+    background-image: linear-gradient(90deg, #041410bb, #04141055), url('/images/editorial/wedding-chapel-2k.webp');
   }
   .last-copy {
     padding-top: 140px;
-    background-image: linear-gradient(90deg, #041410bb, #04141055), url('/images/film-end.webp');
+    background-image: linear-gradient(90deg, #041410bb, #04141055), url('/images/facilities/sunset-lapa-aerial.jpg');
   }
   .nav {
     background: #11251cf0;
