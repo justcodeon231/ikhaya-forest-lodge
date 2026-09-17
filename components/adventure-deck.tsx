@@ -1,5 +1,5 @@
 "use client";
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import Image from 'next/image';
 import { ArrowUpRight } from 'lucide-react';
 
@@ -52,13 +52,51 @@ interface AdventureDeckProps {
 }
 
 export function AdventureDeck({ onSelect }: AdventureDeckProps) {
+  const [activeIdx, setActiveIdx] = useState(0);
+  const gridRef = useRef<HTMLDivElement>(null);
+
+  const scrollToIndex = (idx: number) => {
+    setActiveIdx(idx);
+    if (!gridRef.current) return;
+    const container = gridRef.current;
+    const cards = container.querySelectorAll<HTMLElement>('.borderless-adventure-card');
+    if (cards[idx]) {
+      cards[idx].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    }
+  };
+
+  const handleScroll = () => {
+    if (!gridRef.current) return;
+    const container = gridRef.current;
+    const scrollLeft = container.scrollLeft;
+    const cardWidth = container.clientWidth * 0.78;
+    const current = Math.round(scrollLeft / (cardWidth || 1));
+    setActiveIdx(Math.max(0, Math.min(ADVENTURES.length - 1, current)));
+  };
+
   return (
     <div className="borderless-adventure-deck">
-      <div className="adventure-grid">
-        {ADVENTURES.map((item) => (
+      {/* Mobile Activity Tabs (hidden on desktop) */}
+      <div className="adventure-mobile-tabs" role="tablist" aria-label="Adventures selection">
+        {ADVENTURES.map((item, idx) => (
+          <button
+            key={item.id}
+            className={`adventure-mobile-tab-btn ${idx === activeIdx ? 'is-active' : ''}`}
+            onClick={() => scrollToIndex(idx)}
+            role="tab"
+            aria-selected={idx === activeIdx}
+            type="button"
+          >
+            {item.tag}
+          </button>
+        ))}
+      </div>
+
+      <div className="adventure-grid" ref={gridRef} onScroll={handleScroll}>
+        {ADVENTURES.map((item, idx) => (
           <div
             key={item.id}
-            className="borderless-adventure-card"
+            className={`borderless-adventure-card ${idx === activeIdx ? 'is-active-card' : ''}`}
             onClick={() => onSelect(item.reserveName)}
             role="button"
             tabIndex={0}
@@ -76,7 +114,7 @@ export function AdventureDeck({ onSelect }: AdventureDeckProps) {
                 alt={item.alt}
                 fill
                 unoptimized
-                sizes="(max-width: 768px) 90vw, 360px"
+                sizes="(max-width: 768px) 80vw, 360px"
                 className="adventure-photo-img"
               />
             </div>
@@ -91,6 +129,19 @@ export function AdventureDeck({ onSelect }: AdventureDeckProps) {
               </div>
             </div>
           </div>
+        ))}
+      </div>
+
+      {/* Mobile Indicator Dots (hidden on desktop) */}
+      <div className="adventure-mobile-dots">
+        {ADVENTURES.map((item, idx) => (
+          <button
+            key={item.id}
+            className={`adventure-dot ${idx === activeIdx ? 'is-active' : ''}`}
+            onClick={() => scrollToIndex(idx)}
+            aria-label={`Slide to ${item.title}`}
+            type="button"
+          />
         ))}
       </div>
     </div>

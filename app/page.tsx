@@ -5,8 +5,8 @@ import { ScrollFilm } from '@/components/scroll-film';
 import { BeveledCard } from '@/components/beveled-card';
 import { EmberParticles } from '@/components/ember-particles';
 import { AdventureDeck } from '@/components/adventure-deck';
-import { ArrowDown, ArrowUpRight, Compass, MessageCircle, Phone } from 'lucide-react';
-import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { ArrowDown, ArrowUpRight, Compass, MessageCircle, Phone, ChevronLeft, ChevronRight } from 'lucide-react';
+import { BookingModal } from '@/components/booking-modal';
 
 const clamp = (v: number) => Math.max(0, Math.min(1, v));
 const range = (p: number, a: number, b: number) => clamp((p - a) / (b - a));
@@ -780,7 +780,9 @@ export default function Home() {
 
           <div className="scene-footer">
             <span className="place-note">FIVE BIOMES · BIG 4 · MALARIA-FREE</span>
-            <nav className="chapters" aria-label="Journey chapters">
+            
+            {/* Desktop Chapter Navigation */}
+            <nav className="chapters desktop-chapters" aria-label="Journey chapters">
               {chapters.map((name, i) => (
                 <button key={name} aria-current={active === i ? 'step' : undefined} onClick={() => go(i)}>
                   <span className="chapter-number">0{i + 1}</span>
@@ -788,6 +790,58 @@ export default function Home() {
                 </button>
               ))}
             </nav>
+
+            {/* Mobile Chapter Floating Navigator */}
+            <div className="mobile-chapter-capsule" role="navigation" aria-label="Mobile chapter navigator">
+              <button
+                className="mobile-nav-arrow"
+                onClick={() => go(Math.max(0, active - 1))}
+                disabled={active === 0}
+                aria-label="Previous chapter"
+                type="button"
+              >
+                <ChevronLeft size={16} />
+              </button>
+              <div
+                className="mobile-nav-pill"
+                onClick={() => go((active + 1) % chapters.length)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    go((active + 1) % chapters.length);
+                  }
+                }}
+                aria-label={`Current chapter: ${chapters[active]}. Tap to skip to next.`}
+              >
+                <span className="mobile-nav-badge">0{active + 1} / 08</span>
+                <span className="mobile-nav-title">{chapters[active]}</span>
+              </div>
+              <button
+                className="mobile-nav-arrow"
+                onClick={() => go(Math.min(chapters.length - 1, active + 1))}
+                disabled={active === chapters.length - 1}
+                aria-label="Next chapter"
+                type="button"
+              >
+                <ChevronRight size={16} />
+              </button>
+            </div>
+
+            {/* Mobile Indicator Beads */}
+            <div className="mobile-dots-indicator" aria-hidden="true">
+              {chapters.map((_, i) => (
+                <button
+                  key={i}
+                  className={`mobile-dot ${active === i ? 'is-active' : ''}`}
+                  onClick={() => go(i)}
+                  aria-label={`Go to chapter 0${i + 1}`}
+                  type="button"
+                />
+              ))}
+            </div>
+
             <span className="scroll-cue">
               SCROLL TO WANDER <ArrowDown size={14} />
             </span>
@@ -799,85 +853,12 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Reservation & Stay Inquiry Dialog */}
-      <Dialog open={booking} onOpenChange={setBooking}>
-        <DialogContent className="booking">
-          <DialogTitle className="booking-title">Reserve your experience.</DialogTitle>
-          <DialogDescription>
-            Independent speculative concept by LocalAI Systems for Inkwenkwezi Private Game Reserve. Select your preferred
-            facility or safari below; direct WhatsApp channel connects to the reserve.
-          </DialogDescription>
-          {sent ? (
-            <div className="confirmation" role="status">
-              <Compass size={40} color="#c89d5c" />
-              <h3>Your escape, imagined.</h3>
-              <p>
-                {suite}, arriving {arrival}. You can also connect directly with Inkwenkwezi reservations at{' '}
-                <strong>+27 (043) 734 3234</strong> or on WhatsApp.
-              </p>
-              <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
-                <a
-                  href={`https://wa.me/27437343234?text=Hi%20Inkwenkwezi,%20I'd%20like%20to%20enquire%20about%20${encodeURIComponent(
-                    suite
-                  )}%20arriving%20${encodeURIComponent(arrival)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="pill whatsapp"
-                >
-                  <MessageCircle size={17} /> Confirm on WhatsApp
-                </a>
-                <button className="pill" onClick={() => setBooking(false)}>
-                  Back to reserve
-                </button>
-              </div>
-            </div>
-          ) : (
-            <form
-              onSubmit={e => {
-                e.preventDefault();
-                setSent(true);
-              }}
-            >
-              <label>
-                Your Experience / Accommodation
-                <select value={suite} onChange={e => setSuite(e.target.value)}>
-                  <option>Valley Tented Suite (4★ Canopy Decks)</option>
-                  <option>Bush Tented Suite (3★ Hilltop & Cave Ensuite)</option>
-                  <option>Guided 4×4 Game Drive (Day Safari)</option>
-                  <option>Sunday Buffet Lunch at Emthombeni</option>
-                  <option>Guided Quad Biking Safari</option>
-                  <option>Wedding or Function Venue Inquiry</option>
-                </select>
-              </label>
-              <div className="date-grid">
-                <label>
-                  Preferred Date
-                  <input
-                    type="date"
-                    required
-                    min={new Date().toLocaleDateString('en-CA')}
-                    value={arrival}
-                    onChange={e => setArrival(e.target.value)}
-                  />
-                </label>
-                <label>
-                  Guests
-                  <select>
-                    <option>2 guests</option>
-                    <option>1 guest</option>
-                    <option>3 guests</option>
-                    <option>4+ guests</option>
-                    <option>Group / Wedding (20+ guests)</option>
-                  </select>
-                </label>
-              </div>
-              <button className="pill" type="submit">
-                Preview my reservation <ArrowUpRight size={17} />
-              </button>
-            </form>
-          )}
-        </DialogContent>
-      </Dialog>
+      {/* Bespoke Luxury Concierge & Reservation Modal */}
+      <BookingModal
+        open={booking}
+        onOpenChange={setBooking}
+        initialSuite={suite}
+      />
     </main>
   );
 }
