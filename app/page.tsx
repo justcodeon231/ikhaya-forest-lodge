@@ -4,7 +4,8 @@ import Image from 'next/image';
 import { ScrollFilm } from '@/components/scroll-film';
 import { BeveledCard } from '@/components/beveled-card';
 import { EmberParticles } from '@/components/ember-particles';
-import { ArrowDown, ArrowUpRight, Compass, MessageCircle, Phone, Sparkles } from 'lucide-react';
+import { AdventureDeck } from '@/components/adventure-deck';
+import { ArrowDown, ArrowUpRight, Compass, MessageCircle, Phone } from 'lucide-react';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 
 const clamp = (v: number) => Math.max(0, Math.min(1, v));
@@ -26,9 +27,73 @@ export const chapters = [
 
 export const chapterStops = [0.00, 0.14, 0.28, 0.42, 0.56, 0.70, 0.84, 0.96];
 
+type BiomeId = 'estuary' | 'umtiza' | 'bushveld' | 'grassland' | 'riverine';
+
+interface BiomeInfo {
+  name: string;
+  src: string;
+  tag: string;
+  title: string;
+  badge: string;
+  desc: string;
+  reserveTarget: string;
+}
+
+const BIOME_DATA: Record<BiomeId, BiomeInfo> = {
+  estuary: {
+    name: 'Tidal Estuary',
+    src: '/images/editorial/estuary-canoe-2k.webp',
+    tag: 'Coastal Ecology',
+    title: 'Living Tidal Saltwater Estuary',
+    badge: 'Tidal Waters & Fish Eagles',
+    desc: 'Tranquil coastal river waters with natural ebb and flow, home to kingfishers, African fish eagles, and serene canoeing trails.',
+    reserveTarget: 'Estuary Canoeing'
+  },
+  umtiza: {
+    name: 'Umtiza Forest',
+    src: '/images/facilities/umtiza-tree.jpg',
+    tag: 'Botanical Sanctuary',
+    title: 'Ancient Umtiza Listeriana Forest',
+    badge: 'Over 300 Protected Specimens',
+    desc: 'The second largest protected population in South Africa of the rare ancient Umtiza listeriana tree, conserved in a 1-hectare sanctuary.',
+    reserveTarget: 'Umtiza Guided Walk'
+  },
+  bushveld: {
+    name: 'Valley Bushveld',
+    src: '/images/facilities/nyala-wildlife.jpg',
+    tag: 'Subtropical Thicket',
+    title: 'Valley Bushveld & Thicket',
+    badge: 'Giant Aloes & Spekboom',
+    desc: 'Dense succulent and thorny thicket featuring giant bitter aloes, euphorbias, and spekboom, sustaining abundant browsing game.',
+    reserveTarget: 'Day Safari & Game Drive'
+  },
+  grassland: {
+    name: 'Coastal Grassland',
+    src: '/images/facilities/sunset-lapa-aerial.jpg',
+    tag: 'Endangered Habitat',
+    title: 'Rolling Coastal Grassland',
+    badge: 'Rare Stangeria Cycads',
+    desc: 'Prime coastal habitat supporting the rare cycad Stangeria eriopus and the endangered cycad-feeding butterfly Veniliodes setinata.',
+    reserveTarget: 'Day Safari & Game Drive'
+  },
+  riverine: {
+    name: 'Riverine Thicket',
+    src: '/images/facilities/safari-game-drive.jpg',
+    tag: 'Riverine Corridor',
+    title: 'Riverine Thicket & Pans',
+    badge: 'Riparian Game Trails',
+    desc: 'Dense lush vegetation bordering natural river courses and freshwater pans where leopards and nyala drink.',
+    reserveTarget: 'Day Safari & Game Drive'
+  }
+};
+
+const BIOME_KEYS: BiomeId[] = ['estuary', 'umtiza', 'bushveld', 'grassland', 'riverine'];
+
 export default function Home() {
   const journey = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(0);
+  const [activeBiome, setActiveBiome] = useState<BiomeId>('umtiza');
+  const currentBiome = BIOME_DATA[activeBiome];
   const [camp, setCamp] = useState<'valley' | 'bush'>('valley');
   const [booking, setBooking] = useState(false);
   const [suite, setSuite] = useState('Valley Tented Suite');
@@ -260,9 +325,9 @@ export default function Home() {
             />
           </div>
 
-          <div className="scene-image suite-image" data-layer="suite-image">
+          <div className="scene-image suite-image" data-layer="suite-image" style={{ zIndex: 4 }}>
             <Image
-              src={camp === 'valley' ? '/images/facilities/valley-camp-deck.jpg' : '/images/facilities/bush-camp-exterior.jpg'}
+              src={camp === 'valley' ? '/images/editorial/valley-camp-suite-2k.webp' : '/images/editorial/bush-camp-hilltop-2k.webp'}
               alt="Tented luxury safari suite overlooking indigenous bush canopy"
               fill
               unoptimized
@@ -270,9 +335,9 @@ export default function Home() {
             />
           </div>
 
-          <div className="scene-image lapa-bg" data-layer="lapa-bg" style={{ zIndex: 2, opacity: 0, pointerEvents: 'none' }}>
+          <div className="scene-image lapa-bg" data-layer="lapa-bg" style={{ zIndex: 4, opacity: 0, pointerEvents: 'none' }}>
             <Image
-              src="/images/facilities/sunset-lapa-restaurant.jpg"
+              src="/images/editorial/sunset-lapa-twilight-2k.webp"
               alt="The Sunset Restaurant and stone boma fire pit at dusk"
               fill
               unoptimized
@@ -280,9 +345,9 @@ export default function Home() {
             />
           </div>
 
-          <div className="scene-image wedding-bg" data-layer="wedding-bg" style={{ zIndex: 2, opacity: 0, pointerEvents: 'none' }}>
+          <div className="scene-image wedding-bg" data-layer="wedding-bg" style={{ zIndex: 4, opacity: 0, pointerEvents: 'none' }}>
             <Image
-              src="/images/facilities/emthombeni-restaurant.jpg"
+              src="/images/editorial/emthombeni-banquet-2k.webp"
               alt="Emthombeni banquet hall with floor-to-ceiling glass folding doors"
               fill
               unoptimized
@@ -333,22 +398,37 @@ export default function Home() {
                   Inkwenkwezi encompasses one of South Africa’s rarest ecological crossroads — five regional biomes
                   and a living tidal saltwater estuary flourishing inside a single protected valley.
                 </p>
-                <div className="biomes-pills">
-                  <span>Tidal Saltwater Estuary</span>
-                  <span>Ancient Umtiza Forest</span>
-                  <span>Valley Bushveld</span>
-                  <span>Rolling Coastal Grassland</span>
-                  <span>Riverine Thicket</span>
+                <div className="biomes-interactive-nav" role="tablist" aria-label="Regional biomes selection">
+                  {BIOME_KEYS.map(key => {
+                    const b = BIOME_DATA[key];
+                    const isSelected = activeBiome === key;
+                    return (
+                      <button
+                        key={key}
+                        className={`biome-pill-btn ${isSelected ? 'is-active' : ''}`}
+                        onClick={() => setActiveBiome(key)}
+                        role="tab"
+                        aria-selected={isSelected}
+                      >
+                        <span className="biome-pill-dot" />
+                        {b.name}
+                      </button>
+                    );
+                  })}
+                </div>
+                <div className="biome-detail-card">
+                  <span className="biome-detail-badge">{currentBiome.badge}</span>
+                  <p className="biome-detail-text">{currentBiome.desc}</p>
                 </div>
               </div>
               <div className="chapter-media-pop">
                 <BeveledCard
-                  src="/images/facilities/umtiza-tree.jpg"
-                  alt="Ancient Umtiza Listeriana Tree Forest"
-                  tag="Botanical Sanctuary"
-                  title="Rare Umtiza Forest"
-                  subtitle="Over 300 specimens of the rare Umtiza listeriana tree, protected in a 1-hectare sanctuary."
-                  onClick={() => reserve('Umtiza Guided Walk')}
+                  src={currentBiome.src}
+                  alt={currentBiome.name}
+                  tag={currentBiome.tag}
+                  title={currentBiome.title}
+                  subtitle={currentBiome.desc}
+                  onClick={() => reserve(currentBiome.reserveTarget)}
                 />
               </div>
             </div>
@@ -376,7 +456,7 @@ export default function Home() {
               </div>
               <div className="chapter-media-pop">
                 <BeveledCard
-                  src="/images/facilities/white-lions.jpg"
+                  src="/images/editorial/white-lions-pride-2k.webp"
                   alt="The rare genuine White Lions of Inkwenkwezi"
                   tag="African Legend"
                   title="The Rare White Lions"
@@ -452,7 +532,7 @@ export default function Home() {
               <div className="chapter-media-pop">
                 {camp === 'valley' ? (
                   <BeveledCard
-                    src="/images/facilities/valley-camp-suite.jpg"
+                    src="/images/editorial/valley-camp-suite-2k.webp"
                     alt="Valley Camp luxury tent interior and slipper bath"
                     tag="4★ Valley Camp"
                     title="Luxury Canopy Tented Suite"
@@ -461,11 +541,11 @@ export default function Home() {
                   />
                 ) : (
                   <BeveledCard
-                    src="/images/facilities/bush-camp-cave-ensuite.jpg"
-                    alt="Bush Camp natural rock cave ensuite bathroom"
+                    src="/images/editorial/bush-camp-hilltop-2k.webp"
+                    alt="Bush Camp hilltop luxury safari tent"
                     tag="3★ Bush Camp"
-                    title="Natural Cave-Rock Ensuite"
-                    subtitle="Sculpted from local sandstone and boulders to blend seamlessly into the wild hillside terrain."
+                    title="Hilltop Ridge Safari Suite"
+                    subtitle="Panoramic hilltop vantage point, Cloud 9 bed, raised viewing deck, and hand-crafted natural cave rock ensuite."
                     onClick={() => reserve('Bush Camp Suite')}
                   />
                 )}
@@ -496,8 +576,8 @@ export default function Home() {
               </div>
               <div className="chapter-media-pop">
                 <BeveledCard
-                  src="/images/facilities/sunset-lapa-restaurant.jpg"
-                  alt="Sunset Lapa and stone boma fireplace"
+                  src="/images/editorial/sunset-lapa-twilight-2k.webp"
+                  alt="Sunset Lapa and stone boma fireplace at dusk"
                   tag="Resident Dining"
                   title="The Sunset Restaurant & Lounge"
                   subtitle="Relax next to the open-air fire pit with a glass of wine as stars illuminate the valley."
@@ -530,7 +610,7 @@ export default function Home() {
               </div>
               <div className="chapter-media-pop">
                 <BeveledCard
-                  src="/images/facilities/wedding-fig-tree-chapel.jpg"
+                  src="/images/editorial/wedding-chapel-2k.webp"
                   alt="Open-air wedding chapel under the ancient Wild Fig Tree"
                   tag="Wild Coast Weddings"
                   title="Open-Air Wild Fig Chapel"
@@ -551,32 +631,7 @@ export default function Home() {
             <p className="body-copy">
               Beyond game drives, Inkwenkwezi invites you to paddle tranquil tidal waters and conquer rugged bushveld slopes.
             </p>
-            <div className="experience-cards">
-              <div className="experience-card" onClick={() => reserve('Guided Quad Biking Tour')}>
-                <span className="card-badge">Quad Safari</span>
-                <h3>Guided Quad Biking</h3>
-                <p>1 to 2 hour guided quad trails navigating river crossings, technical ridges, and panoramic valley viewpoints.</p>
-                <span className="card-link">
-                  Explore trail <ArrowUpRight size={14} />
-                </span>
-              </div>
-              <div className="experience-card" onClick={() => reserve('Estuary Canoeing')}>
-                <span className="card-badge">Tidal Waters</span>
-                <h3>Tidal Estuary Canoeing</h3>
-                <p>Paddle down the tranquil saltwater estuary, gliding past riverine thicket and nesting African fish eagles.</p>
-                <span className="card-link">
-                  Book canoeing <ArrowUpRight size={14} />
-                </span>
-              </div>
-              <div className="experience-card" onClick={() => reserve('Sunday Buffet at Emthombeni')}>
-                <span className="card-badge">Buffet Lunch</span>
-                <h3>Sunday Buffet at Emthombeni</h3>
-                <p>Home-style gourmet Sunday feast overlooking the reserve. R295/adult, half-price under 10, free under 3.</p>
-                <span className="card-link">
-                  Reserve table <ArrowUpRight size={14} />
-                </span>
-              </div>
-            </div>
+            <AdventureDeck onSelect={name => reserve(name)} />
           </section>
 
           {/* SCENE 08: PLAN YOUR ESCAPE & CONCIERGE */}
