@@ -2442,4 +2442,278 @@ button:focus-visible, a:focus-visible {
   }
 }
 
+/* ==========================================================================
+   Desktop Recommendation Disclaimer Modal (First-Time Viewers)
+   ========================================================================== */
+.disclaimer-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+}
+
+.disclaimer-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(4, 14, 10, 0.88);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.disclaimer-modal-card {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 540px;
+  background: rgba(10, 24, 18, 0.96);
+  border: 1px solid rgba(200, 157, 92, 0.45);
+  border-radius: 14px;
+  padding: 28px 30px;
+  box-shadow: 0 32px 80px -10px rgba(0, 0, 0, 0.95), 0 0 0 1px rgba(200, 157, 92, 0.25);
+  color: #f5f2e9;
+  overflow: hidden;
+}
+
+.disclaimer-glow {
+  position: absolute;
+  top: -90px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 360px;
+  height: 180px;
+  background: radial-gradient(ellipse at center, rgba(200, 157, 92, 0.22), transparent 70%);
+  pointer-events: none;
+}
+
+.disclaimer-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.disclaimer-brand-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.disclaimer-icon-badge {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(200, 157, 92, 0.12);
+  border: 1px solid rgba(200, 157, 92, 0.35);
+  display: grid;
+  place-items: center;
+}
+
+.disclaimer-brand-text {
+  font-size: 9.5px;
+  letter-spacing: 1.8px;
+  color: #c89d5c;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.disclaimer-close-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #c7d2c5;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.disclaimer-close-btn:hover {
+  background: rgba(200, 157, 92, 0.25);
+  color: #f5f2e9;
+  border-color: #c89d5c;
+}
+
+.disclaimer-visual-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.disclaimer-device-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  background: rgba(20, 45, 34, 0.7);
+  border: 1px solid rgba(200, 157, 92, 0.35);
+  display: grid;
+  place-items: center;
+  transition: all 0.25s;
+}
+
+.disclaimer-device-icon.monitor {
+  box-shadow: 0 0 20px rgba(200, 157, 92, 0.25);
+  border-color: rgba(200, 157, 92, 0.65);
+}
+
+.disclaimer-device-icon.phone.is-active-device {
+  border-color: #f59e0b;
+  box-shadow: 0 0 16px rgba(245, 158, 11, 0.2);
+}
+
+.disclaimer-vs-sparkle {
+  display: grid;
+  place-items: center;
+}
+
+.disclaimer-content {
+  text-align: center;
+  margin-bottom: 22px;
+}
+
+.disclaimer-eyebrow {
+  font-size: 9.5px;
+  letter-spacing: 2px;
+  color: #c89d5c;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  display: inline-block;
+}
+
+.disclaimer-headline {
+  font: 25px/1.2 Georgia, serif;
+  color: #f5f2e9;
+  margin: 0 0 8px 0;
+}
+
+.disclaimer-headline em {
+  color: #e8cf9c;
+  font-style: italic;
+}
+
+.disclaimer-subheadline {
+  font-size: 14px;
+  font-weight: 600;
+  color: #e8cf9c;
+  letter-spacing: 0.3px;
+  margin: 0 0 12px 0;
+}
+
+.disclaimer-body {
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: #d0dbce;
+  margin: 0 0 14px 0;
+}
+
+.disclaimer-status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background: rgba(14, 28, 22, 0.85);
+  border: 1px solid rgba(200, 157, 92, 0.3);
+  border-radius: 9999px;
+  font-size: 11px;
+  color: #f5f2e9;
+  margin: 0 auto;
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+.status-dot.warning {
+  background: #f59e0b;
+  box-shadow: 0 0 8px #f59e0b;
+}
+
+.status-dot.ready {
+  background: #25d366;
+  box-shadow: 0 0 8px #25d366;
+}
+
+.disclaimer-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.disclaimer-primary-btn {
+  background: #c89d5c !important;
+  color: #081611 !important;
+  font-weight: 600 !important;
+  width: 100% !important;
+  justify-content: center !important;
+  padding: 13px 20px !important;
+  border: 1px solid #f5e4c3 !important;
+  box-shadow: 0 4px 18px rgba(200, 157, 92, 0.35) !important;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.disclaimer-primary-btn:hover {
+  background: #e5be85 !important;
+  box-shadow: 0 6px 22px rgba(200, 157, 92, 0.45) !important;
+}
+
+.disclaimer-secondary-btn {
+  background: rgba(20, 45, 34, 0.7) !important;
+  color: #f5f2e9 !important;
+  font-size: 12px !important;
+  width: 100% !important;
+  justify-content: center !important;
+  padding: 10px 16px !important;
+  border: 1px solid rgba(200, 157, 92, 0.35) !important;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.disclaimer-secondary-btn:hover {
+  background: rgba(30, 65, 50, 0.85) !important;
+  border-color: rgba(200, 157, 92, 0.6) !important;
+}
+
+.disclaimer-card-footer {
+  margin-top: 14px;
+  text-align: center;
+  font-size: 10px;
+  color: #7f9185;
+  letter-spacing: 0.3px;
+}
+
+@media (max-width: 640px) {
+  .disclaimer-modal-card {
+    padding: 22px 18px;
+    border-radius: 12px;
+  }
+  .disclaimer-headline {
+    font-size: 20px;
+  }
+  .disclaimer-subheadline {
+    font-size: 13px;
+  }
+  .disclaimer-body {
+    font-size: 12px;
+    line-height: 1.5;
+  }
+  .desktop-break {
+    display: none;
+  }
+}
+
+
 

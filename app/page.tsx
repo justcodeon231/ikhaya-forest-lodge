@@ -7,6 +7,7 @@ import { EmberParticles } from '@/components/ember-particles';
 import { AdventureDeck } from '@/components/adventure-deck';
 import { ArrowDown, ArrowUpRight, Compass, MessageCircle, Phone, ChevronLeft, ChevronRight } from 'lucide-react';
 import { BookingModal } from '@/components/booking-modal';
+import { DesktopDisclaimerModal } from '@/components/desktop-disclaimer-modal';
 
 const clamp = (v: number) => Math.max(0, Math.min(1, v));
 const range = (p: number, a: number, b: number) => clamp((p - a) / (b - a));
@@ -773,9 +774,19 @@ export default function Home() {
               Independent speculative concept by LocalAI Systems · Not commissioned by or affiliated with Inkwenkwezi Private Game Reserve<br />
               Schafli Road, East Coast, East London, South Africa · pgr@inkwenkwezi.co.za
             </p>
-            <button className="again" onClick={() => go(0)}>
-              Wander back to the beginning
-            </button>
+            <div style={{ display: 'flex', gap: '16px', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap' }}>
+              <button className="again" onClick={() => go(0)}>
+                Wander back to the beginning
+              </button>
+              <span style={{ color: 'rgba(200, 157, 92, 0.4)', fontSize: '11px' }}>·</span>
+              <button
+                className="again"
+                onClick={() => window.dispatchEvent(new CustomEvent('open-desktop-disclaimer'))}
+                title="View desktop recommendation notice"
+              >
+                Experience Notice
+              </button>
+            </div>
           </section>
 
           <div className="scene-footer">
@@ -859,6 +870,9 @@ export default function Home() {
         onOpenChange={setBooking}
         initialSuite={suite}
       />
+
+      {/* First-Time Viewer Desktop Recommendation Disclaimer Pop-up */}
+      <DesktopDisclaimerModal />
     </main>
   );
 }
